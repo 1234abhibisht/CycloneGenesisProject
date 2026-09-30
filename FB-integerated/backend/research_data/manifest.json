@@ -1,0 +1,38 @@
+{
+  "archive": {
+    "source": "NOAA IBTrACS v04r01",
+    "filename": "ibtracs.since1980.list.v04r01.csv",
+    "rows": 15354,
+    "storms": 463,
+    "firstYear": 1980,
+    "lastYear": 2025,
+    "windAgency": "IMD / NEWDELHI",
+    "windUnit": "knots",
+    "pressureUnit": "hPa"
+  },
+  "training": {
+    "train": "1990\u20132002",
+    "validation": "2003\u20132005",
+    "test": "2006\u20132008",
+    "horizonHours": 24
+  },
+  "files": {
+    "intensity/wind_24h.ubj": "64ac4639139eed3be744ad737f0333f7a442a359208de3a52ba437713f482026",
+    "intensity/features.json": "d5db0203f3dd3e5f5d68005b0edf35d8e22fd9aa7c71eb9dfbc39dac6b4f4e25",
+    "intensity/preprocessing.joblib": "5741720869b834b7a583469121a647e13ff8114f075a5ad725273ff5debb65a8",
+    "intensity/test_prepared.pkl": "6a47bdd897f2edbe15f5211c5fc2a7d784a40b888b8437cc820ef8ee4197aeb8",
+    "intensity/metrics.json": "97efd519e36010b78957e850c6ddbd14dbbf520652b8620d8321cf4a41bd9712",
+    "track/target_dlat.ubj": "ea655868f9b63f1a0e40138adf58f615d0c5cbe44c868f3e79d4cac900697a78",
+    "track/target_dlon.ubj": "d7ec950450788495ac2e39c611aafd3668a9733aa1f29312251a42ed2ae1c822",
+    "track/features.json": "d5db0203f3dd3e5f5d68005b0edf35d8e22fd9aa7c71eb9dfbc39dac6b4f4e25",
+    "track/preprocessing.joblib": "1f0f11afa33ae65688dd64fb1393b38b201f410bbe2fbe6758ec49a2d437031f",
+    "track/test_prepared.pkl": "721e11d43724b736d75e1af63025facb250d6e9cf6d9a99ee6e8152bd4013172",
+    "track/metrics.json": "568589399a837b16710b502941d46e488f22b10ffda56ab02f98c4cb83f1fa04",
+    "formation/formation.ubj": "704b632d99dfe188fda4b82b2e497b5eb462a9ae83aae5258ce7dbfa53fc57ec",
+    "formation/decision_threshold.json": "ee61429fe698064d4b4766d71ec37adf32d9ccc9c919641ad82bfe31bd4f9437",
+    "formation/features.json": "23efd6d0e40cd4689e69e7655c0e1645a5e2c2b47cb58cff03a90ecbf48f4684",
+    "formation/preprocessing.joblib": "9e6049f1d2128198ff934441c88c89e17fe826dd6e9eae42c31a03b26329370a",
+    "formation/test_prepared.pkl": "044d2d5bb746d9efb339df9423d4123dffea65792f21560e4b4d04aaa1635352",
+    "formation/metrics.json": "8ffc5c2584bceb970d48767ab9a6942d39dfec363a28d9de30c90761dc474553"
+  }
+}

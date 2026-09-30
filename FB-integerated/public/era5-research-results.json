@@ -1,0 +1,620 @@
+{
+  "metadata": {
+    "source": "ERA5",
+    "mode": "retrospective_reanalysis",
+    "horizon_hours": 24,
+    "features": [
+      "u10_mean",
+      "u10_std",
+      "v10_mean",
+      "v10_std",
+      "t2m_mean",
+      "t2m_std",
+      "d2m_mean",
+      "d2m_std",
+      "msl_mean",
+      "msl_std",
+      "msl_min",
+      "sst_mean",
+      "sst_std",
+      "sst_min",
+      "speed10_mean",
+      "speed10_std",
+      "speed10_max",
+      "dewpoint_depression_mean",
+      "dewpoint_depression_std",
+      "lat",
+      "lon",
+      "season_sin",
+      "season_cos",
+      "ocean_fraction"
+    ],
+    "splits": {
+      "train": [
+        "1990-01-01",
+        "2006-01-01"
+      ],
+      "tune": [
+        "2006-01-01",
+        "2007-01-01"
+      ],
+      "calibration": [
+        "2007-01-01",
+        "2009-01-01"
+      ]
+    },
+    "threshold": 0.2688376009464264,
+    "threshold_rule": "Maximum F1 on 2007-2008",
+    "calibration": "Sigmoid fitted on 2007-2008; threshold fitted on same development block",
+    "calibration_metrics_are_in_sample": true,
+    "test_status": "PENDING_2009_ONWARD_COMPLETE_ERA5",
+    "test_metrics": null,
+    "forward_season_validation": [
+      {
+        "season": "2001-04-01",
+        "rows": 8965,
+        "positives": 4,
+        "average_precision": 0.07745825470349402
+      },
+      {
+        "season": "2001-10-01",
+        "rows": 9050,
+        "positives": 6,
+        "average_precision": 0.26917249417249417
+      },
+      {
+        "season": "2002-04-01",
+        "rows": 8975,
+        "positives": 4,
+        "average_precision": 0.12027472527472527
+      },
+      {
+        "season": "2002-10-01",
+        "rows": 9061,
+        "positives": 8,
+        "average_precision": 0.20729368362377515
+      },
+      {
+        "season": "2003-04-01",
+        "rows": 8964,
+        "positives": 4,
+        "average_precision": 0.6791666666666667
+      },
+      {
+        "season": "2003-10-01",
+        "rows": 9028,
+        "positives": 5,
+        "average_precision": 0.08861645484462165
+      },
+      {
+        "season": "2004-04-01",
+        "rows": 8935,
+        "positives": 5,
+        "average_precision": 0.1304217701905594
+      },
+      {
+        "season": "2004-10-01",
+        "rows": 8994,
+        "positives": 2,
+        "average_precision": 0.03737373737373738
+      },
+      {
+        "season": "2005-04-01",
+        "status": "insufficient_classes"
+      },
+      {
+        "season": "2005-10-01",
+        "rows": 8972,
+        "positives": 6,
+        "average_precision": 0.8703703703703705
+      }
+    ],
+    "tuning": [
+      {
+        "depth": 2,
+        "tune_average_precision": 0.011786300643549089
+      },
+      {
+        "depth": 3,
+        "tune_average_precision": 0.01326899796185013
+      },
+      {
+        "depth": 4,
+        "tune_average_precision": 0.011880784550991652
+      }
+    ],
+    "calibration_fit_metrics": {
+      "rows": 72775,
+      "positives": 28,
+      "average_precision": 0.4331352051983932,
+      "brier": 0.0002776685869321227,
+      "confusion_matrix": [
+        [
+          72731,
+          16
+        ],
+        [
+          14,
+          14
+        ]
+      ]
+    },
+    "partition_counts": {
+      "train": {
+        "rows": 581648,
+        "positives": 123,
+        "events": 36
+      },
+      "tune": {
+        "rows": 36249,
+        "positives": 8,
+        "events": 2
+      },
+      "calibration": {
+        "rows": 72775,
+        "positives": 28,
+        "events": 8
+      }
+    },
+    "sources": [
+      {
+        "name": "ERA5 full monthly feature cache",
+        "path": "D:\\SIH\\Research paper work\\cyclone_ml\\outputs\\monthly",
+        "why": "Same six surface fields and units used for model fitting; no GFS substitution"
+      },
+      {
+        "name": "IBTrACS NEWDELHI",
+        "path": "D:\\ibtracs.since1980.list.v04r01.csv",
+        "why": "Observed storm positions, IMD grades and threshold-onset labels"
+      }
+    ],
+    "limitations": [
+      "Independent test performance is unknown.",
+      "Calibration and threshold selection share a development block.",
+      "No current-footprint or depression-onset probability is estimated.",
+      "Upper-air features and INSAT fusion are not trained."
+    ]
+  },
+  "examples": [
+    {
+      "time": "2008-11-14 06:00:00",
+      "cell": "10_80",
+      "lat": 12.5,
+      "lon": 82.5,
+      "target": 1,
+      "event_id": "2008317N11089",
+      "raw_score": 0.9580163,
+      "probability": 0.7288065,
+      "prediction": true
+    },
+    {
+      "time": "2007-10-28 06:00:00",
+      "cell": "10_80",
+      "lat": 12.5,
+      "lon": 82.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.94366264,
+      "probability": 0.6668902,
+      "prediction": true
+    },
+    {
+      "time": "2007-11-11 18:00:00",
+      "cell": "10_90",
+      "lat": 12.5,
+      "lon": 92.5,
+      "target": 1,
+      "event_id": "2007314N10093",
+      "raw_score": 0.94051623,
+      "probability": 0.6545771,
+      "prediction": true
+    },
+    {
+      "time": "2008-10-25 18:00:00",
+      "cell": "15_85",
+      "lat": 17.5,
+      "lon": 87.5,
+      "target": 1,
+      "event_id": "2008298N16085",
+      "raw_score": 0.9375013,
+      "probability": 0.6431537,
+      "prediction": true
+    },
+    {
+      "time": "2008-11-25 06:00:00",
+      "cell": "10_80",
+      "lat": 12.5,
+      "lon": 82.5,
+      "target": 1,
+      "event_id": "2008329N09082",
+      "raw_score": 0.934512,
+      "probability": 0.63217175,
+      "prediction": true
+    },
+    {
+      "time": "2007-10-28 00:00:00",
+      "cell": "10_80",
+      "lat": 12.5,
+      "lon": 82.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.92604494,
+      "probability": 0.60278606,
+      "prediction": true
+    },
+    {
+      "time": "2007-11-15 00:00:00",
+      "cell": "15_90",
+      "lat": 17.5,
+      "lon": 92.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.9126546,
+      "probability": 0.56088203,
+      "prediction": true
+    },
+    {
+      "time": "2008-11-26 00:00:00",
+      "cell": "10_80",
+      "lat": 12.5,
+      "lon": 82.5,
+      "target": 1,
+      "event_id": "2008329N09082",
+      "raw_score": 0.89824617,
+      "probability": 0.52103424,
+      "prediction": true
+    },
+    {
+      "time": "2007-11-11 12:00:00",
+      "cell": "10_90",
+      "lat": 12.5,
+      "lon": 92.5,
+      "target": 1,
+      "event_id": "2007314N10093",
+      "raw_score": 0.89642346,
+      "probability": 0.5163304,
+      "prediction": true
+    },
+    {
+      "time": "2007-11-12 00:00:00",
+      "cell": "10_90",
+      "lat": 12.5,
+      "lon": 92.5,
+      "target": 1,
+      "event_id": "2007314N10093",
+      "raw_score": 0.8937991,
+      "probability": 0.50968003,
+      "prediction": true
+    },
+    {
+      "time": "2007-10-30 18:00:00",
+      "cell": "10_60",
+      "lat": 12.5,
+      "lon": 62.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.88215846,
+      "probability": 0.48180664,
+      "prediction": true
+    },
+    {
+      "time": "2008-11-25 12:00:00",
+      "cell": "5_80",
+      "lat": 7.5,
+      "lon": 82.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.8640984,
+      "probability": 0.44317374,
+      "prediction": true
+    },
+    {
+      "time": "2008-10-25 12:00:00",
+      "cell": "15_85",
+      "lat": 17.5,
+      "lon": 87.5,
+      "target": 1,
+      "event_id": "2008298N16085",
+      "raw_score": 0.8621162,
+      "probability": 0.43923488,
+      "prediction": true
+    },
+    {
+      "time": "2008-04-30 06:00:00",
+      "cell": "15_85",
+      "lat": 17.5,
+      "lon": 87.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.8442218,
+      "probability": 0.40602002,
+      "prediction": true
+    },
+    {
+      "time": "2007-11-14 18:00:00",
+      "cell": "15_90",
+      "lat": 17.5,
+      "lon": 92.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.83707064,
+      "probability": 0.39381924,
+      "prediction": true
+    },
+    {
+      "time": "2007-05-13 12:00:00",
+      "cell": "15_90",
+      "lat": 17.5,
+      "lon": 92.5,
+      "target": 1,
+      "event_id": "2007133N15091",
+      "raw_score": 0.83566153,
+      "probability": 0.39148098,
+      "prediction": true
+    },
+    {
+      "time": "2007-11-14 06:00:00",
+      "cell": "10_85",
+      "lat": 12.5,
+      "lon": 87.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.82746464,
+      "probability": 0.37828583,
+      "prediction": true
+    },
+    {
+      "time": "2008-12-05 00:00:00",
+      "cell": "5_85",
+      "lat": 7.5,
+      "lon": 87.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.80411327,
+      "probability": 0.34412396,
+      "prediction": true
+    },
+    {
+      "time": "2008-10-26 00:00:00",
+      "cell": "15_90",
+      "lat": 17.5,
+      "lon": 92.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.8040712,
+      "probability": 0.34406656,
+      "prediction": true
+    },
+    {
+      "time": "2007-11-13 00:00:00",
+      "cell": "10_90",
+      "lat": 12.5,
+      "lon": 92.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.7970466,
+      "probability": 0.33467296,
+      "prediction": true
+    },
+    {
+      "time": "2008-11-25 12:00:00",
+      "cell": "10_80",
+      "lat": 12.5,
+      "lon": 82.5,
+      "target": 1,
+      "event_id": "2008329N09082",
+      "raw_score": 0.79130614,
+      "probability": 0.32726756,
+      "prediction": true
+    },
+    {
+      "time": "2007-11-15 06:00:00",
+      "cell": "15_90",
+      "lat": 17.5,
+      "lon": 92.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.7913048,
+      "probability": 0.32726592,
+      "prediction": true
+    },
+    {
+      "time": "2008-10-26 06:00:00",
+      "cell": "15_85",
+      "lat": 17.5,
+      "lon": 87.5,
+      "target": 1,
+      "event_id": "2008298N16085",
+      "raw_score": 0.78675276,
+      "probability": 0.3215584,
+      "prediction": true
+    },
+    {
+      "time": "2008-11-25 00:00:00",
+      "cell": "10_80",
+      "lat": 12.5,
+      "lon": 82.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.7782463,
+      "probability": 0.31126308,
+      "prediction": true
+    },
+    {
+      "time": "2007-12-12 12:00:00",
+      "cell": "5_80",
+      "lat": 7.5,
+      "lon": 82.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.77332807,
+      "probability": 0.30552,
+      "prediction": true
+    },
+    {
+      "time": "2007-05-13 18:00:00",
+      "cell": "15_90",
+      "lat": 17.5,
+      "lon": 92.5,
+      "target": 1,
+      "event_id": "2007133N15091",
+      "raw_score": 0.7539385,
+      "probability": 0.28424704,
+      "prediction": true
+    },
+    {
+      "time": "2008-05-01 06:00:00",
+      "cell": "15_90",
+      "lat": 17.5,
+      "lon": 92.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.744232,
+      "probability": 0.2743477,
+      "prediction": true
+    },
+    {
+      "time": "2008-10-26 00:00:00",
+      "cell": "15_85",
+      "lat": 17.5,
+      "lon": 87.5,
+      "target": 1,
+      "event_id": "2008298N16085",
+      "raw_score": 0.7426492,
+      "probability": 0.27277723,
+      "prediction": true
+    },
+    {
+      "time": "2007-11-14 00:00:00",
+      "cell": "15_85",
+      "lat": 17.5,
+      "lon": 87.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.7423539,
+      "probability": 0.27248558,
+      "prediction": true
+    },
+    {
+      "time": "2008-04-27 18:00:00",
+      "cell": "10_85",
+      "lat": 12.5,
+      "lon": 87.5,
+      "target": 1,
+      "event_id": "2008117N11090",
+      "raw_score": 0.7386248,
+      "probability": 0.2688376,
+      "prediction": true
+    },
+    {
+      "time": "2007-11-14 12:00:00",
+      "cell": "15_90",
+      "lat": 17.5,
+      "lon": 92.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.7335114,
+      "probability": 0.26393917,
+      "prediction": false
+    },
+    {
+      "time": "2007-11-14 00:00:00",
+      "cell": "15_90",
+      "lat": 17.5,
+      "lon": 92.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.7311631,
+      "probability": 0.26172876,
+      "prediction": false
+    },
+    {
+      "time": "2007-10-31 06:00:00",
+      "cell": "10_60",
+      "lat": 12.5,
+      "lon": 62.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.7304601,
+      "probability": 0.26107177,
+      "prediction": false
+    },
+    {
+      "time": "2008-10-17 06:00:00",
+      "cell": "5_60",
+      "lat": 7.5,
+      "lon": 62.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.70356405,
+      "probability": 0.2374504,
+      "prediction": false
+    },
+    {
+      "time": "2007-05-14 00:00:00",
+      "cell": "15_85",
+      "lat": 17.5,
+      "lon": 87.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.69209033,
+      "probability": 0.22819518,
+      "prediction": false
+    },
+    {
+      "time": "2008-11-27 06:00:00",
+      "cell": "10_80",
+      "lat": 12.5,
+      "lon": 82.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.68335265,
+      "probability": 0.221443,
+      "prediction": false
+    },
+    {
+      "time": "2007-10-28 12:00:00",
+      "cell": "10_80",
+      "lat": 12.5,
+      "lon": 82.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.6829229,
+      "probability": 0.2211172,
+      "prediction": false
+    },
+    {
+      "time": "2008-10-26 18:00:00",
+      "cell": "15_85",
+      "lat": 17.5,
+      "lon": 87.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.6734901,
+      "probability": 0.21410954,
+      "prediction": false
+    },
+    {
+      "time": "2008-10-26 06:00:00",
+      "cell": "15_90",
+      "lat": 17.5,
+      "lon": 92.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.6543222,
+      "probability": 0.20066376,
+      "prediction": false
+    },
+    {
+      "time": "2008-10-25 06:00:00",
+      "cell": "15_85",
+      "lat": 17.5,
+      "lon": 87.5,
+      "target": 0,
+      "event_id": "",
+      "raw_score": 0.6256003,
+      "probability": 0.1822903,
+      "prediction": false
+    }
+  ]
+}
