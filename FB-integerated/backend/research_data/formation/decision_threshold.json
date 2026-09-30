@@ -1,0 +1,6 @@
+{
+  "threshold": 0.36485058069229126,
+  "selected_on": "validation F1",
+  "train_prevalence": 0.00040480879109758,
+  "negative_sampling": "Training only; inverse sampling weights. Training metrics describe sampled rows."
+}

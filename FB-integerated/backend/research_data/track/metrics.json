@@ -1,0 +1,32 @@
+{
+  "train": {
+    "rows": 1735,
+    "storms": 109,
+    "mean_error_km": 136.56000993579377,
+    "median_error_km": 117.64897779964718,
+    "persistence_mean_error_km": 315.33586021730923,
+    "motion_baseline_mean_error_km": 170.47224971973026,
+    "motion_baseline_rows": 1633,
+    "model_mean_error_on_motion_rows_km": 133.53922641274275
+  },
+  "validation": {
+    "rows": 449,
+    "storms": 30,
+    "mean_error_km": 158.18005998767137,
+    "median_error_km": 147.76400081915895,
+    "persistence_mean_error_km": 250.29745599181805,
+    "motion_baseline_mean_error_km": 175.2447163397381,
+    "motion_baseline_rows": 423,
+    "model_mean_error_on_motion_rows_km": 157.53182867623414
+  },
+  "test": {
+    "rows": 352,
+    "storms": 27,
+    "mean_error_km": 153.3280488279802,
+    "median_error_km": 141.72230840773435,
+    "persistence_mean_error_km": 305.12552608519053,
+    "motion_baseline_mean_error_km": 166.7067100071444,
+    "motion_baseline_rows": 326,
+    "model_mean_error_on_motion_rows_km": 150.28359254478644
+  }
+}
