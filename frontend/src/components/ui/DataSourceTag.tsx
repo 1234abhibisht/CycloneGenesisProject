@@ -8,12 +8,12 @@ interface DataSourceTagProps {
 }
 
 const sourceColors = {
-  'IBTrACS': 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
-  'ERA5': 'bg-purple-500/10 text-purple-400 border-purple-500/30',
+  'IBTrACS': 'bg-[#0B7F8E]/10 text-[#0B7F8E] border-[#0B7F8E]/30',
+  'ERA5': 'bg-purple-500/10 text-[#6D3FC0] border-purple-500/30',
   'NASA GIBS': 'bg-blue-500/10 text-blue-400 border-blue-500/30',
-  'DEMO': 'bg-amber-500/10 text-amber-400 border-amber-500/30',
-  'LIVE': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
-  'MODEL': 'bg-slate-700 text-slate-300 border-slate-600',
+  'DEMO': 'bg-amber-500/10 text-[#A15C07] border-amber-500/30',
+  'LIVE': 'bg-emerald-500/10 text-[#1F7A4D] border-emerald-500/30',
+  'MODEL': 'bg-[#CFE5E9] text-[#4A6670] border-[#CFE5E9]',
 };
 
 export const DataSourceTag: React.FC<DataSourceTagProps> = ({ source, size = 'sm' }) => {

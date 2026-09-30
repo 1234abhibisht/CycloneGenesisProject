@@ -22,7 +22,7 @@ export const Tooltip: React.FC<TooltipProps> = ({ content, children, position = 
         "pointer-events-none absolute z-50 opacity-0 transition-opacity group-hover:opacity-100",
         positionClasses[position]
       )}>
-        <div className="bg-slate-700 text-slate-100 text-xs py-1.5 px-2.5 rounded-md shadow-lg whitespace-nowrap border border-slate-600">
+        <div className="bg-[#CFE5E9] text-[#0B2A33] text-xs py-1.5 px-2.5 rounded-md shadow-lg whitespace-nowrap border border-[#CFE5E9]">
           {content}
         </div>
       </div>

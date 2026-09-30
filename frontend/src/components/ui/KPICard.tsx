@@ -15,11 +15,11 @@ interface KPICardProps {
 }
 
 const colorMap = {
-  cyan: 'text-cyan-400 bg-cyan-400/10 border-cyan-400',
-  amber: 'text-amber-400 bg-amber-400/10 border-amber-400',
-  red: 'text-red-400 bg-red-400/10 border-red-400',
-  emerald: 'text-emerald-400 bg-emerald-400/10 border-emerald-400',
-  purple: 'text-purple-400 bg-purple-400/10 border-purple-400',
+  cyan: 'text-[#0B7F8E] bg-[#0B7F8E]/10 border-[#0B7F8E]',
+  amber: 'text-[#A15C07] bg-amber-400/10 border-amber-400',
+  red: 'text-[#B8322B] bg-red-400/10 border-red-400',
+  emerald: 'text-[#1F7A4D] bg-emerald-400/10 border-emerald-400',
+  purple: 'text-[#6D3FC0] bg-purple-400/10 border-purple-400',
 };
 
 export const KPICard: React.FC<KPICardProps> = ({
@@ -29,22 +29,22 @@ export const KPICard: React.FC<KPICardProps> = ({
     <Card className={clsx("border-l-4", colorMap[color].split(' ')[2])}>
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-slate-400">{title}</p>
+          <p className="text-sm font-medium text-[#4A6670]">{title}</p>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-slate-100">{value}</span>
-            {unit && <span className="text-sm font-medium text-slate-400">{unit}</span>}
+            <span className="text-3xl font-bold text-[#0B2A33]">{value}</span>
+            {unit && <span className="text-sm font-medium text-[#4A6670]">{unit}</span>}
           </div>
-          {subtitle && <p className="text-xs text-slate-500 mt-1">{subtitle}</p>}
+          {subtitle && <p className="text-xs text-[#4A6670] mt-1">{subtitle}</p>}
           
           {trend && trendValue && (
             <div className="mt-3 flex items-center gap-1 text-xs">
-              {trend === 'up' && <TrendingUp className="w-3 h-3 text-red-400" />}
-              {trend === 'down' && <TrendingDown className="w-3 h-3 text-emerald-400" />}
-              {trend === 'stable' && <Minus className="w-3 h-3 text-slate-400" />}
+              {trend === 'up' && <TrendingUp className="w-3 h-3 text-[#B8322B]" />}
+              {trend === 'down' && <TrendingDown className="w-3 h-3 text-[#1F7A4D]" />}
+              {trend === 'stable' && <Minus className="w-3 h-3 text-[#4A6670]" />}
               <span className={clsx(
-                trend === 'up' && "text-red-400",
-                trend === 'down' && "text-emerald-400",
-                trend === 'stable' && "text-slate-400"
+                trend === 'up' && "text-[#B8322B]",
+                trend === 'down' && "text-[#1F7A4D]",
+                trend === 'stable' && "text-[#4A6670]"
               )}>
                 {trendValue}
               </span>

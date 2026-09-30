@@ -20,8 +20,8 @@ interface EnvironmentalChartProps {
 const CustomTooltip = ({ active, payload, label, variable, unit }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-slate-800 border border-slate-600 p-3 rounded shadow-lg z-50">
-        <p className="text-slate-300 text-sm mb-1">{new Date(label).toLocaleString()}</p>
+      <div className="bg-[#E1F4F6] border border-[#CFE5E9] p-3 rounded shadow-lg z-50">
+        <p className="text-[#4A6670] text-sm mb-1">{new Date(label).toLocaleString()}</p>
         <p style={{ color: payload[0].color }} className="text-sm font-semibold">
           {variable}: {payload[0].value} {unit}
         </p>
@@ -51,10 +51,10 @@ export const EnvironmentalChart: React.FC<EnvironmentalChartProps> = ({
           <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
           <XAxis 
             dataKey="timestamp" 
-            stroke="#94a3b8" 
+            stroke="#4A6670" 
             tickFormatter={(tick) => new Date(tick).toLocaleDateString([], { month: 'short', day: 'numeric' })} 
           />
-          <YAxis stroke="#94a3b8" />
+          <YAxis stroke="#4A6670" />
           <Tooltip content={<CustomTooltip variable={variable} unit={unit} />} />
           <Area 
             type="monotone" 

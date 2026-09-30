@@ -19,8 +19,8 @@ interface HistoricalFrequencyChartProps {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-slate-800 border border-slate-600 p-3 rounded shadow-lg z-50">
-        <p className="text-slate-200 text-sm font-bold mb-1">{label}</p>
+      <div className="bg-[#E1F4F6] border border-[#CFE5E9] p-3 rounded shadow-lg z-50">
+        <p className="text-[#0B2A33] text-sm font-bold mb-1">{label}</p>
         {payload.map((entry: any, index: number) => (
           <p key={`item-${index}`} style={{ color: entry.color }} className="text-sm">
             {entry.name}: {entry.value}
@@ -60,8 +60,8 @@ export const HistoricalFrequencyChart: React.FC<HistoricalFrequencyChartProps> =
       <ResponsiveContainer>
         <BarChart data={groupedData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-          <XAxis dataKey="label" stroke="#94a3b8" />
-          <YAxis stroke="#94a3b8" allowDecimals={false} />
+          <XAxis dataKey="label" stroke="#4A6670" />
+          <YAxis stroke="#4A6670" allowDecimals={false} />
           <Tooltip content={<CustomTooltip />} cursor={{ fill: '#334155', opacity: 0.4 }} />
           {hasBasins && <Legend wrapperStyle={{ paddingTop: '20px' }} />}
           

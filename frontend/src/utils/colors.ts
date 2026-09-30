@@ -26,7 +26,7 @@ export const getRiskLevelColor = (level: RiskLevel): string => {
 
 export const getSSHSColor = (category: number): string => {
   switch (category) {
-    case -1: return '#38BDF8';
+    case -1: return '#0B7F8E';
     case 0: return '#10B981';
     case 1: return '#F59E0B';
     case 2: return '#F97316';
@@ -38,11 +38,11 @@ export const getSSHSColor = (category: number): string => {
 };
 
 export const getEnvironmentalColor = (_variable: string, _value: number): string => {
-  return '#38BDF8';
+  return '#0B7F8E';
 };
 
 export const getCycloneTrackColor = (windKnots: number): string => {
-  if (windKnots < 34) return '#38BDF8';
+  if (windKnots < 34) return '#0B7F8E';
   if (windKnots < 48) return '#10B981';
   if (windKnots < 64) return '#F59E0B';
   if (windKnots < 90) return '#F97316';

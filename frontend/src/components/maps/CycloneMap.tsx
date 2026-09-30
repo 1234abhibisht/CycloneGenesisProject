@@ -61,7 +61,7 @@ export const CycloneMap: React.FC<CycloneMapProps> = ({
   const [showMenu, setShowMenu] = useState<boolean>(false);
 
   return (
-    <div className={twMerge('w-full h-full rounded-xl overflow-hidden relative border border-[#1E3A5F]', className)}>
+    <div className={twMerge('w-full h-full rounded-xl overflow-hidden relative border border-[#CFE5E9]', className)}>
       <MapContainer
         center={center}
         zoom={zoom}
@@ -86,23 +86,23 @@ export const CycloneMap: React.FC<CycloneMapProps> = ({
         <div className="absolute top-3 right-3 z-[1000] flex flex-col items-end font-mono">
           <button
             onClick={() => setShowMenu(!showMenu)}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#0D1B2A]/90 hover:bg-[#102235] border border-[#1E3A5F] rounded-md text-xs text-slate-200 shadow-xl backdrop-blur-md transition cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#FFFFFF]/90 hover:bg-[#E1F4F6] border border-[#CFE5E9] rounded-md text-xs text-[#0B2A33] shadow-xl backdrop-blur-md transition cursor-pointer"
             title="Switch Map Tiles (Satellite / NASA Dark / Topo)"
           >
-            <Layers className="w-3.5 h-3.5 text-[#38BDF8]" />
+            <Layers className="w-3.5 h-3.5 text-[#0B7F8E]" />
             <span className="text-[11px] font-bold uppercase tracking-wider">
               {activeTile === 'satellite' ? 'Satellite' : activeTile === 'dark' ? 'Standard map' : 'Terrain'}
             </span>
           </button>
 
           {showMenu && (
-            <div className="mt-1.5 p-2 bg-[#0D1B2A]/95 backdrop-blur-md border border-[#1E3A5F] rounded-lg shadow-2xl space-y-1 w-44">
-              <div className="text-[10px] text-slate-400 font-bold px-2 py-1 uppercase border-b border-[#1E3A5F]/60">
+            <div className="mt-1.5 p-2 bg-[#FFFFFF]/95 backdrop-blur-md border border-[#CFE5E9] rounded-lg shadow-2xl space-y-1 w-44">
+              <div className="text-[10px] text-[#4A6670] font-bold px-2 py-1 uppercase border-b border-[#CFE5E9]/60">
                 Map Basemap
               </div>
               <button
                 onClick={() => { setActiveTile('dark'); setShowMenu(false); }}
-                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded text-left text-xs cursor-pointer transition ${activeTile === 'dark' ? 'bg-sky-500/20 text-[#38BDF8] font-bold border border-sky-500/40' : 'text-slate-300 hover:bg-[#102235]'}`}
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded text-left text-xs cursor-pointer transition ${activeTile === 'dark' ? 'bg-[#0B7F8E]/20 text-[#0B7F8E] font-bold border border-[#0B7F8E]/40' : 'text-[#4A6670] hover:bg-[#E1F4F6]'}`}
               >
                 <Compass className="w-3.5 h-3.5" />
                 <span>Standard Map</span>
@@ -110,7 +110,7 @@ export const CycloneMap: React.FC<CycloneMapProps> = ({
 
               <button
                 onClick={() => { setActiveTile('satellite'); setShowMenu(false); }}
-                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded text-left text-xs cursor-pointer transition ${activeTile === 'satellite' ? 'bg-sky-500/20 text-[#38BDF8] font-bold border border-sky-500/40' : 'text-slate-300 hover:bg-[#102235]'}`}
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded text-left text-xs cursor-pointer transition ${activeTile === 'satellite' ? 'bg-[#0B7F8E]/20 text-[#0B7F8E] font-bold border border-[#0B7F8E]/40' : 'text-[#4A6670] hover:bg-[#E1F4F6]'}`}
               >
                 <Satellite className="w-3.5 h-3.5" />
                 <span>HD Satellite (Esri)</span>
@@ -118,7 +118,7 @@ export const CycloneMap: React.FC<CycloneMapProps> = ({
 
               <button
                 onClick={() => { setActiveTile('terrain'); setShowMenu(false); }}
-                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded text-left text-xs cursor-pointer transition ${activeTile === 'terrain' ? 'bg-sky-500/20 text-[#38BDF8] font-bold border border-sky-500/40' : 'text-slate-300 hover:bg-[#102235]'}`}
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded text-left text-xs cursor-pointer transition ${activeTile === 'terrain' ? 'bg-[#0B7F8E]/20 text-[#0B7F8E] font-bold border border-[#0B7F8E]/40' : 'text-[#4A6670] hover:bg-[#E1F4F6]'}`}
               >
                 <MapIcon className="w-3.5 h-3.5" />
                 <span>Land & Ocean Topo</span>

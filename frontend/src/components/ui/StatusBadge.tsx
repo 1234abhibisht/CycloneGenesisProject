@@ -8,17 +8,17 @@ interface StatusBadgeProps {
 }
 
 const statusConfig = {
-  live: { bg: 'bg-emerald-500/20', text: 'text-emerald-400', border: 'border-emerald-500/30', dot: 'bg-emerald-500' },
-  demo: { bg: 'bg-amber-500/20', text: 'text-amber-400', border: 'border-amber-500/30', dot: 'bg-amber-500' },
-  high: { bg: 'bg-red-500/20', text: 'text-red-400', border: 'border-red-500/30', dot: 'bg-red-500' },
-  moderate: { bg: 'bg-amber-500/20', text: 'text-amber-400', border: 'border-amber-500/30', dot: 'bg-amber-500' },
-  low: { bg: 'bg-emerald-500/20', text: 'text-emerald-400', border: 'border-emerald-500/30', dot: 'bg-emerald-500' },
-  none: { bg: 'bg-slate-500/20', text: 'text-slate-400', border: 'border-slate-500/30', dot: 'bg-slate-500' },
-  active: { bg: 'bg-cyan-500/20', text: 'text-cyan-400', border: 'border-cyan-500/30', dot: 'bg-cyan-500' },
-  dissipated: { bg: 'bg-slate-500/20', text: 'text-slate-400', border: 'border-slate-500/30', dot: 'bg-slate-500' },
-  intensifying: { bg: 'bg-red-500/20', text: 'text-red-400', border: 'border-red-500/30', dot: 'bg-red-500' },
-  weakening: { bg: 'bg-emerald-500/20', text: 'text-emerald-400', border: 'border-emerald-500/30', dot: 'bg-emerald-500' },
-  stable: { bg: 'bg-amber-500/20', text: 'text-amber-400', border: 'border-amber-500/30', dot: 'bg-amber-500' },
+  live: { bg: 'bg-emerald-500/20', text: 'text-[#1F7A4D]', border: 'border-emerald-500/30', dot: 'bg-emerald-500' },
+  demo: { bg: 'bg-amber-500/20', text: 'text-[#A15C07]', border: 'border-amber-500/30', dot: 'bg-amber-500' },
+  high: { bg: 'bg-red-500/20', text: 'text-[#B8322B]', border: 'border-red-500/30', dot: 'bg-red-500' },
+  moderate: { bg: 'bg-amber-500/20', text: 'text-[#A15C07]', border: 'border-amber-500/30', dot: 'bg-amber-500' },
+  low: { bg: 'bg-emerald-500/20', text: 'text-[#1F7A4D]', border: 'border-emerald-500/30', dot: 'bg-emerald-500' },
+  none: { bg: 'bg-slate-500/20', text: 'text-[#4A6670]', border: 'border-slate-500/30', dot: 'bg-slate-500' },
+  active: { bg: 'bg-[#0B7F8E]/20', text: 'text-[#0B7F8E]', border: 'border-[#0B7F8E]/30', dot: 'bg-[#0B7F8E]' },
+  dissipated: { bg: 'bg-slate-500/20', text: 'text-[#4A6670]', border: 'border-slate-500/30', dot: 'bg-slate-500' },
+  intensifying: { bg: 'bg-red-500/20', text: 'text-[#B8322B]', border: 'border-red-500/30', dot: 'bg-red-500' },
+  weakening: { bg: 'bg-emerald-500/20', text: 'text-[#1F7A4D]', border: 'border-emerald-500/30', dot: 'bg-emerald-500' },
+  stable: { bg: 'bg-amber-500/20', text: 'text-[#A15C07]', border: 'border-amber-500/30', dot: 'bg-amber-500' },
 };
 
 const sizeConfig = {

@@ -15,11 +15,11 @@ export const Slider: React.FC<SliderProps> = ({ min, max, step, value, onChange,
 
   return (
     <div className="w-full">
-      {label && <div className="text-sm font-medium text-slate-300 mb-3">{label}</div>}
+      {label && <div className="text-sm font-medium text-[#4A6670] mb-3">{label}</div>}
       <div className="relative pt-1 pb-6">
-        <div className="h-1.5 bg-slate-700 rounded-full w-full">
+        <div className="h-1.5 bg-[#CFE5E9] rounded-full w-full">
           <div 
-            className="absolute h-1.5 bg-cyan-500 rounded-full" 
+            className="absolute h-1.5 bg-[#0B7F8E] rounded-full" 
             style={{ width: `${percentage}%` }}
           />
         </div>
@@ -33,12 +33,12 @@ export const Slider: React.FC<SliderProps> = ({ min, max, step, value, onChange,
           className="absolute top-1 w-full h-1.5 opacity-0 cursor-pointer"
         />
         <div 
-          className="absolute top-0 -mt-1 w-4 h-4 bg-cyan-400 rounded-full border-2 border-gray-900 shadow shadow-cyan-500/50 pointer-events-none"
+          className="absolute top-0 -mt-1 w-4 h-4 bg-[#0B7F8E] rounded-full border-2 border-gray-900 shadow shadow-cyan-500/50 pointer-events-none"
           style={{ left: `calc(${percentage}% - 8px)` }}
         />
         
         {marks && (
-          <div className="absolute top-4 w-full flex justify-between text-[10px] text-slate-400 font-medium">
+          <div className="absolute top-4 w-full flex justify-between text-[10px] text-[#4A6670] font-medium">
             {marks.map((mark) => (
               <div 
                 key={mark.value} 

@@ -14,9 +14,10 @@ export function useCyclone() {
   // prevents duplicate requests in development where effects are replayed.
   const requestInFlight = useRef(false);
   const hasCompletedFirstLoad = useRef(false);
+  const refreshQueued = useRef(false);
 
   const fetchCyclone = useCallback(async () => {
-    if (requestInFlight.current) return;
+    if (requestInFlight.current) { refreshQueued.current = true; return; }
     requestInFlight.current = true;
 
     try {
@@ -48,6 +49,10 @@ export function useCyclone() {
       hasCompletedFirstLoad.current = true;
       requestInFlight.current = false;
       setLoading(false);
+      if (refreshQueued.current) {
+        refreshQueued.current = false;
+        window.dispatchEvent(new Event('cyclone-refresh'));
+      }
     }
   }, []);
 

@@ -15,7 +15,7 @@ interface TabsProps {
 
 export const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onChange }) => {
   return (
-    <div className="border-b border-slate-700">
+    <div className="border-b border-[#CFE5E9]">
       <nav className="flex space-x-6 overflow-x-auto" aria-label="Tabs">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
@@ -26,11 +26,11 @@ export const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onChange }) => {
               className={clsx(
                 "whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors",
                 isActive
-                  ? "border-cyan-400 text-cyan-400"
-                  : "border-transparent text-slate-400 hover:text-slate-300 hover:border-slate-600"
+                  ? "border-[#0B7F8E] text-[#0B7F8E]"
+                  : "border-transparent text-[#4A6670] hover:text-[#4A6670] hover:border-[#CFE5E9]"
               )}
             >
-              {tab.icon && <span className={clsx("w-4 h-4", isActive ? "text-cyan-400" : "text-slate-500")}>{tab.icon}</span>}
+              {tab.icon && <span className={clsx("w-4 h-4", isActive ? "text-[#0B7F8E]" : "text-[#4A6670]")}>{tab.icon}</span>}
               {tab.label}
             </button>
           );

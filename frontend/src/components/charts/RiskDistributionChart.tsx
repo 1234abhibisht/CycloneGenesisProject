@@ -24,11 +24,11 @@ const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
-      <div className="bg-slate-800 border border-slate-600 p-3 rounded shadow-lg z-50">
+      <div className="bg-[#E1F4F6] border border-[#CFE5E9] p-3 rounded shadow-lg z-50">
         <p style={{ color: COLORS[data.level] || '#fff' }} className="text-sm font-bold">
           {data.level} RISK
         </p>
-        <p className="text-slate-300 text-sm">Count: {data.count}</p>
+        <p className="text-[#4A6670] text-sm">Count: {data.count}</p>
       </div>
     );
   }
@@ -44,8 +44,8 @@ export const RiskDistributionChart: React.FC<RiskDistributionChartProps> = ({
   return (
     <div style={{ width: '100%', height, position: 'relative' }}>
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10" style={{ top: '-15px' }}>
-        <span className="text-3xl font-bold text-slate-200">{totalCount}</span>
-        <span className="text-xs text-slate-400">Total Areas</span>
+        <span className="text-3xl font-bold text-[#0B2A33]">{totalCount}</span>
+        <span className="text-xs text-[#4A6670]">Total Areas</span>
       </div>
       <ResponsiveContainer>
         <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
