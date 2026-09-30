@@ -1,0 +1,8 @@
+district,state,p_6h,p_12h,p_18h,p_24h,p,lat,lon,6 h,12 h,18 h,24 h,colour (24 h)
+Nagapattinam,Tamil Nadu,1.0,1.0,1.0,1.0,1.0,10.77,79.84,100%,100%,100%,100%,red
+Cuddalore,Tamil Nadu,0.415,0.718,0.733,0.762,0.762,11.75,79.77,40%,70%,75%,75%,red
+Puducherry,Puducherry,0.29,0.664,0.695,0.72,0.72,11.93,79.84,30%,65%,70%,70%,red
+Chennai,Tamil Nadu,0.0,0.049,0.19,0.244,0.244,13.08,80.29,<5%,5%,20%,25%,yellow
+Tiruvallur,Tamil Nadu,0.0,0.013,0.093,0.189,0.189,13.4,80.32,<5%,<5%,10%,20%,yellow
+Nellore,Andhra Pradesh,0.0,0.0,0.007,0.034,0.034,14.44,80.13,<5%,<5%,<5%,5%,green
+Ramanathapuram,Tamil Nadu,0.0,0.0,0.0,0.003,0.003,9.28,79.1,<5%,<5%,<5%,<5%,green
