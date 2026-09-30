@@ -1,0 +1,27 @@
+
+/* Weather responds to a confirmed live cyclone; the content stays on a pale surface. */
+.public-hero--raining {
+  background-image: linear-gradient(90deg, #eaf3f9f5 0%, #e6eff7eb 34%, #9db4c663 70%, #718b9b55 100%), url('/cloud-coast.png');
+}
+.hero-rain { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; opacity: .6; }
+.hero-rain span {
+  position: absolute; top: -70px; left: var(--rain-x); width: 1px; height: var(--rain-length);
+  background: linear-gradient(transparent, #5a819b80, #ffffffc9);
+  animation: coastal-rain var(--rain-duration) linear var(--rain-delay) infinite;
+}
+@keyframes coastal-rain {
+  from { transform: translate3d(55px, -20px, 0) rotate(13deg); }
+  to { transform: translate3d(-90px, 680px, 0) rotate(13deg); }
+}
+.rain-paused .hero-rain span { animation-play-state: paused; }
+.rain-toggle { position: absolute; z-index: 2; top: 18px; right: 26px; display: flex; gap: 6px; align-items: center; color: #355a70; background: #ffffffe0; border: 1px solid #ffffffc9; border-radius: 5px; padding: 8px 11px; font-size: 10px; }
+.public-hero--raining .hero-caption, .public-hero--raining .hero-trust { z-index: 1; }
+@media(max-width:600px) {
+  .public-hero--raining { padding-top: 62px; }
+  .rain-toggle { top: 12px; right: 18px; }
+  .hero-rain { opacity: .4; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .hero-rain span { animation: none; top: var(--rain-rest); transform: rotate(13deg); }
+  .rain-toggle { display: none; }
+}
