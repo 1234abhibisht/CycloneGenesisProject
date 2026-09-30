@@ -28,10 +28,10 @@ export const CycloneMarker: React.FC<CycloneMarkerProps> = ({
 
   return (
     <Marker position={position} icon={icon}>
-      <Tooltip direction="top" offset={[0, -20]} opacity={1} className="dark-leaflet-tooltip bg-slate-800 text-slate-100 border-slate-700">
+      <Tooltip direction="top" offset={[0, -20]} opacity={1} className="dark-leaflet-tooltip bg-[#E1F4F6] text-[#0B2A33] border-[#CFE5E9]">
         <div className="font-semibold text-center">
-          <div className="text-cyan-400">{name}</div>
-          <div className="text-xs text-slate-400">{windSpeed} kts</div>
+          <div className="text-[#0B7F8E]">{name}</div>
+          <div className="text-xs text-[#4A6670]">{windSpeed} kts</div>
         </div>
       </Tooltip>
     </Marker>

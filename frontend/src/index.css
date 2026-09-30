@@ -188,10 +188,13 @@
   color-scheme: light;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* In a layer, so Tailwind's padding/margin utilities (p-4, mt-2 …) are no longer wiped out */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 }
 
 html {

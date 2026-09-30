@@ -20,7 +20,7 @@ export const ObservedTrack: React.FC<ObservedTrackProps> = ({
 
   return (
     <>
-      <Polyline positions={positions} color="#38BDF8" weight={3} opacity={0.9} />
+      <Polyline positions={positions} color="#0B7F8E" weight={3} opacity={0.9} />
       {showMarkers && track.map((point, idx) => (
         <CircleMarker
           key={`track-pt-${idx}`}

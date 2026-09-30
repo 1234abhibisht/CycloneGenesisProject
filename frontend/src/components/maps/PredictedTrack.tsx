@@ -63,8 +63,8 @@ export const PredictedTrack: React.FC<PredictedTrackProps> = ({
           className: 'bg-transparent border-0',
           html: `
             <div class="relative flex items-center justify-center">
-              <div class="${isSelected ? 'w-4 h-4 bg-amber-400 ring-4 ring-amber-500/30' : 'w-2.5 h-2.5 bg-amber-400 border border-[#07111F]'} rounded-full shadow-md transition-all"></div>
-              ${isKeyMilestone ? `<span class="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[10px] font-sans font-semibold text-amber-300 whitespace-nowrap drop-shadow bg-[#07111F]/80 px-1 py-0.2 rounded">T+${point.forecastHour}</span>` : ''}
+              <div class="${isSelected ? 'w-4 h-4 bg-amber-400 ring-4 ring-amber-500/30' : 'w-2.5 h-2.5 bg-amber-400 border border-[#F2FAFB]'} rounded-full shadow-md transition-all"></div>
+              ${isKeyMilestone ? `<span class="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[10px] font-sans font-semibold text-[#A15C07] whitespace-nowrap drop-shadow bg-[#F2FAFB]/80 px-1 py-0.2 rounded">T+${point.forecastHour}</span>` : ''}
             </div>
           `,
           iconSize: [20, 20],
@@ -86,18 +86,18 @@ export const PredictedTrack: React.FC<PredictedTrackProps> = ({
           >
             <Popup className="dark-leaflet-popup">
               <div className="text-xs p-1">
-                <div className="font-semibold text-amber-400 border-b border-white/10 pb-1 mb-1">
+                <div className="font-semibold text-[#A15C07] border-b border-white/10 pb-1 mb-1">
                   +{point.forecastHour}h Forecast Intercept
                 </div>
-                <div className="space-y-0.5 text-slate-200">
+                <div className="space-y-0.5 text-[#0B2A33]">
                   <p>Coordinates: <span className="font-mono font-medium">{point.lat.toFixed(2)}°N, {point.lon.toFixed(2)}°E</span></p>
                   {point.predictedWind != null && (
-                    <p>Wind: <span className="font-mono font-bold text-amber-400">{Math.round(point.predictedWind)} kt</span> ({Math.round(point.predictedWind * 1.852)} km/h){point.predictedIMDGrade ? ` · ${point.predictedIMDGrade}` : ''}</p>
+                    <p>Wind: <span className="font-mono font-bold text-[#A15C07]">{Math.round(point.predictedWind)} kt</span> ({Math.round(point.predictedWind * 1.852)} km/h){point.predictedIMDGrade ? ` · ${point.predictedIMDGrade}` : ''}</p>
                   )}
                   {point.windChange != null && (
                     <p>Change from now: <span className="font-mono">{point.windChange > 0 ? '+' : ''}{Math.round(point.windChange)} kt</span></p>
                   )}
-                  {radiusKm ? <p className="text-[11px] text-slate-400">Uncertainty radius (67 %): ±{Math.round(radiusKm)} km</p> : null}
+                  {radiusKm ? <p className="text-[11px] text-[#4A6670]">Uncertainty radius (67 %): ±{Math.round(radiusKm)} km</p> : null}
                 </div>
               </div>
             </Popup>

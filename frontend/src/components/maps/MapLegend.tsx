@@ -6,8 +6,8 @@ interface MapLegendProps {
 
 export const MapLegend: React.FC<MapLegendProps> = ({ type }) => {
   return (
-    <div className="absolute bottom-4 left-4 z-[1000] bg-slate-800/90 backdrop-blur rounded-lg border border-slate-700 p-3 shadow-xl">
-      <h4 className="text-xs font-semibold text-slate-200 uppercase tracking-wider mb-2">
+    <div className="absolute bottom-4 left-4 z-[1000] bg-[#E1F4F6]/90 backdrop-blur rounded-lg border border-[#CFE5E9] p-3 shadow-xl">
+      <h4 className="text-xs font-semibold text-[#0B2A33] uppercase tracking-wider mb-2">
         {type === 'intensity' ? 'Cyclone Intensity (IMD)' : 'Risk Level'}
       </h4>
       

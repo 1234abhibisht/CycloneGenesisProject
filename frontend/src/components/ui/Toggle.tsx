@@ -23,7 +23,7 @@ export const Toggle: React.FC<ToggleProps> = ({ checked, onChange, label, size =
         <div className={clsx(
           "block rounded-full transition-colors",
           isSmall ? "w-8 h-4.5" : "w-10 h-6",
-          checked ? "bg-cyan-500" : "bg-slate-700"
+          checked ? "bg-[#0B7F8E]" : "bg-[#CFE5E9]"
         )}></div>
         <div className={clsx(
           "absolute bg-white rounded-full transition-transform",
@@ -31,7 +31,7 @@ export const Toggle: React.FC<ToggleProps> = ({ checked, onChange, label, size =
           checked && (isSmall ? "translate-x-3.5" : "translate-x-4")
         )}></div>
       </div>
-      <div className={clsx("text-slate-300 font-medium", isSmall ? "text-xs" : "text-sm")}>
+      <div className={clsx("text-[#4A6670] font-medium", isSmall ? "text-xs" : "text-sm")}>
         {label}
       </div>
     </label>

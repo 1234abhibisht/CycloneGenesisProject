@@ -23,8 +23,8 @@ interface IntensityChartProps {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-slate-800 border border-slate-600 p-3 rounded shadow-lg z-50">
-        <p className="text-slate-300 text-sm mb-1">{label}</p>
+      <div className="bg-[#E1F4F6] border border-[#CFE5E9] p-3 rounded shadow-lg z-50">
+        <p className="text-[#4A6670] text-sm mb-1">{label}</p>
         {payload.map((entry: any, index: number) => (
           <p key={`item-${index}`} style={{ color: entry.color }} className="text-sm font-semibold">
             {entry.name}: {entry.value} kt
@@ -70,12 +70,12 @@ export const IntensityChart: React.FC<IntensityChartProps> = ({
           <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
           <XAxis 
             dataKey="time" 
-            stroke="#94a3b8" 
+            stroke="#4A6670" 
             tickFormatter={(tick) => { const d = new Date(tick); return `${d.getUTCDate()}/${String(d.getUTCHours()).padStart(2, '0')}Z`; }} 
           />
           <YAxis 
-            stroke="#94a3b8" 
-            label={{ value: 'Wind Speed (kt)', angle: -90, position: 'insideLeft', fill: '#94a3b8', dy: 40 }} 
+            stroke="#4A6670" 
+            label={{ value: 'Wind Speed (kt)', angle: -90, position: 'insideLeft', fill: '#4A6670', dy: 40 }} 
             domain={[0, 'auto']}
           />
           <Tooltip content={<CustomTooltip />} />

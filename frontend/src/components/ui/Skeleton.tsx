@@ -13,7 +13,7 @@ interface SkeletonProps {
 export const Skeleton: React.FC<SkeletonProps> = ({ 
   className, variant = 'text', width, height, count = 1 
 }) => {
-  const baseClasses = "animate-pulse bg-slate-700/50";
+  const baseClasses = "animate-pulse bg-[#CFE5E9]/50";
   
   const variantClasses = {
     text: "rounded h-4 w-full",
