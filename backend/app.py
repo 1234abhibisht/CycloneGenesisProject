@@ -304,6 +304,17 @@ def districts_coastal():
     return jsonify({"status": 200, "total": len(roster), "districts": roster})
 
 
+def _zone_method():
+    i = CFG.BASIN_ZONES_INFO
+    if not i:
+        return None
+    y = i.get("years") or ["?", "?"]
+    return (f"Zones derived from IBTrACS {y[0]}-{y[1]}: {len(CFG.BASIN_ZONES)} circles of "
+            f"{round(i.get('radiusKm') or CFG.BASIN_ZONE_RADIUS_KM)} km cover "
+            f"{round(100 * (i.get('positionCoverage') or 0))}% of all depression-or-stronger positions and "
+            f"{round(100 * (i.get('genesisCoverage') or 0))}% of formation points ({i.get('storms')} storms).")
+
+
 @app.route("/api/basin/risk")
 def basin_risk():
     occ = db.latest_occurrence()
@@ -320,7 +331,7 @@ def basin_risk():
                   f"{round(100 * occ['threshold'])}% for cyclonic storm or stronger)",
         "summary": f"Highest 24 h cyclone probability: {top['name']} ({top['probability']}%). Model guidance, "
                    f"not an official warning.",
-        "zones": occ["zones"], "cells": occ["cells"]}})
+        "zones": occ["zones"], "cells": occ["cells"], "zoneMethod": _zone_method()}})
 
 
 @app.route("/api/occurrence/grid")

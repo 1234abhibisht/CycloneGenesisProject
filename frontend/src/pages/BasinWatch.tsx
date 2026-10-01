@@ -67,6 +67,7 @@ export default function BasinWatch() {
             Dots: 0.5° sea cells with at least 2% chance of any depression within 200 km in 24 h (red: above the calibrated warning
             threshold for a cyclonic storm). Zone level: HIGH at or above the warning threshold, MODERATE at one third of it.
             On the unseen 2007-08 test years this threshold caught 96% of events with 0.09 false-alarm zones per forecast.
+            {assessment?.zoneMethod ? ` ${assessment.zoneMethod}` : ''}
           </p>
         </div>
       </div>
