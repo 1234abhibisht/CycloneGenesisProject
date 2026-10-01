@@ -71,6 +71,16 @@ export interface OperationalStandbyState {
     vertical_wind_shear: number | null; // knots
     surface_pressure: number | null;
   };
+  /** GFS averages per region (BOB = Bay of Bengal, ARB = Arabian Sea), with the box they cover */
+  environmentalBaselines?: Record<string, {
+    name: string;
+    label: string; // e.g. "Bay of Bengal average (8-22°N, 80-95°E)"
+    box: [number, number, number, number]; // lat_min, lat_max, lon_min, lon_max
+    sea_surface_temp: number | null;
+    relative_humidity: number | null;
+    vertical_wind_shear: number | null;
+    surface_pressure: number | null;
+  }> | null;
   dataValidTime?: string | null;
   lastSystem?: { id: string; name: string; lastSeen: string } | null;
   lastChecked: string;

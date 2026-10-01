@@ -228,6 +228,10 @@ def test_end_to_end():
     assert set(d0["strikeProbability"]) == {"6h", "12h", "18h", "24h"}
     assert d0["warningLevel"] in ("RED", "ORANGE", "YELLOW", "GREEN")
 
+    occ = c.get("/api/occurrence/grid").get_json()["data"]
+    regs = occ["environmentalBaselines"]
+    assert set(regs) == {"BOB", "ARB"} and regs["BOB"]["sea_surface_temp"] == occ["environmentalBaseline"]["sea_surface_temp"]
+    assert "8-22°N" in regs["ARB"]["label"]
     basin = c.get("/api/basin/risk").get_json()["data"]
     assert basin["status"] == "LIVE" and len(basin["zones"]) == len(CFG.BASIN_ZONES)
     assert max(z["probability"] or 0 for z in basin["zones"]) > 0

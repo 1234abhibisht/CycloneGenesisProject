@@ -172,6 +172,10 @@ def district_risk(store, lat0, lon0, dlat, dlon, forecast, rng, n_tracks):
 
 
 # ================================================================ occurrence (grid) payload
+# regions averaged for the Live Monitoring cards: key -> (name, lat_min, lat_max, lon_min, lon_max)
+ENV_REGIONS = {"BOB": ("Bay of Bengal", 8, 22, 80, 95), "ARB": ("Arabian Sea", 8, 22, 60, 75)}
+
+
 def build_occurrence(store, feats, statics, lat, lon, k, t0, storm_positions):
     """Probability that a cyclone (by class) is within 200 km in the next 24 h, for every 0.5° sea cell."""
     iy, ix = common.domain_index(lat, lon)
@@ -218,11 +222,18 @@ def build_occurrence(store, feats, statics, lat, lon, k, t0, storm_positions):
         cells = [{"lat": _f(r.lat, 2), "lon": _f(r.lon, 2), "pAny": _f(r.p_any, 3), "pCsPlus": _f(r.p_cs_plus, 3),
                   "warning": bool(r.p_cs_plus >= thr), "zone": CFG.BASIN_ZONES[int(r.zone)][0]}
                  for r in hot.itertuples()]
-    bay = (df["lon"] >= 80) & (df["lon"] <= 95) & (df["lat"] >= 8) & (df["lat"] <= 22)
-    baseline = {"sea_surface_temp": _f(np.nanmean(df.loc[bay, "sst_c"]), 1),
-                "relative_humidity": _f(np.nanmean(df.loc[bay, "rh_mid_mean"]), 0),
-                "vertical_wind_shear": _f(_ms_to_kt(np.nanmean(df.loc[bay, "shear_200_850"])), 1),
-                "surface_pressure": _f(np.nanmean(df.loc[bay, "msl"]), 1)}
+    def _avg(lat0, lat1, lon0, lon1):
+        m = (df["lon"] >= lon0) & (df["lon"] <= lon1) & (df["lat"] >= lat0) & (df["lat"] <= lat1)
+        return {"sea_surface_temp": _f(np.nanmean(df.loc[m, "sst_c"]), 1),
+                "relative_humidity": _f(np.nanmean(df.loc[m, "rh_mid_mean"]), 0),
+                "vertical_wind_shear": _f(_ms_to_kt(np.nanmean(df.loc[m, "shear_200_850"])), 1),
+                "surface_pressure": _f(np.nanmean(df.loc[m, "msl"]), 1)}
+    regions = {}
+    for key, (name, lat0, lat1, lon0, lon1) in ENV_REGIONS.items():
+        regions[key] = dict(_avg(lat0, lat1, lon0, lon1), name=name, box=[lat0, lat1, lon0, lon1],
+                            label=f"{name} average ({lat0:g}-{lat1:g}°N, {lon0:g}-{lon1:g}°E)")
+    baseline = {k: regions["BOB"][k] for k in ("sea_surface_temp", "relative_humidity",
+                                               "vertical_wind_shear", "surface_pressure")}
     return {"validTime": _iso(t0), "modelReady": probs is not None, "threshold": thr,
             "zones": zones, "cells": cells, "warningCells": int(sum(c["warning"] for c in cells)),
-            "environmentalBaseline": baseline}
+            "environmentalBaseline": baseline, "environmentalBaselines": regions}
