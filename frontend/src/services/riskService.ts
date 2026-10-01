@@ -1,4 +1,4 @@
-import type { GISRiskAnalysisResult } from '../types/risk';
+import type { GISRiskAnalysisResult, StrikeVerification } from '../types/risk';
 import { API_BASE_URL } from './api';
 import type { District } from '../types/risk';
 
@@ -13,12 +13,14 @@ export async function fetchCoastalDistrictRoster(): Promise<District[] | null> {
   }
 }
 
-export async function fetchDistrictRiskAnalysis(stormId: string = 'ACTIVE'): Promise<GISRiskAnalysisResult | null> {
+export async function fetchDistrictRiskAnalysis(stormId: string = 'ACTIVE', step?: number): Promise<GISRiskAnalysisResult | null> {
   const controller = new AbortController();
-  const timeoutId = window.setTimeout(() => controller.abort(), 8_000);
+  // replay steps are computed on first request (1,000 simulated tracks), so allow more time
+  const timeoutId = window.setTimeout(() => controller.abort(), step !== undefined ? 30_000 : 8_000);
 
   try {
-    const res = await fetch(`${API_BASE_URL}/cyclone/${stormId}/risk`, { signal: controller.signal });
+    const query = step !== undefined ? `?step=${step}` : '';
+    const res = await fetch(`${API_BASE_URL}/cyclone/${stormId}/risk${query}`, { signal: controller.signal });
     if (res.ok) {
       return await res.json();
     }
@@ -30,4 +32,21 @@ export async function fetchDistrictRiskAnalysis(stormId: string = 'ACTIVE'): Pro
     window.clearTimeout(timeoutId);
   }
   return null;
+}
+
+export interface StrikeVerificationResponse {
+  state: 'ready' | 'running' | 'not_started' | 'error';
+  data: StrikeVerification | null;
+  error?: string | null;
+}
+
+/** Strike probabilities vs. reality for all test storms (computed once on the server). */
+export async function fetchStrikeVerification(): Promise<StrikeVerificationResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/historical/strike-verification`);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
 }
