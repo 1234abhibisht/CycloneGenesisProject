@@ -269,11 +269,11 @@ def test_end_to_end():
     sv = c.get("/api/historical/strike-verification").get_json()
     assert sv["state"] == "ready" and sv["data"]["forecastTimes"] >= 1
 
-    assert c.post("/api/mode", json={"mode": "replay"}).get_json()["success"]
+    # live pages never switch to a past storm; test storms are reached by id
+    assert c.post("/api/mode", json={"mode": "replay"}).status_code == 400
     act = c.get("/api/cyclone/active").get_json()
-    assert act["status"] == "REPLAY" and act["data"][0]["name"] == "Sidr"
-    assert c.get("/api/cyclone/ACTIVE/predictions").status_code == 200
-    assert c.post("/api/mode", json={"mode": "live"}).get_json()["success"]
+    assert act["status"] == "LIVE" and act["data"][0]["id"] == "TEST01"
+    assert c.get("/api/cyclone/2007314N10093/predictions").status_code == 200
 
     r = c.post("/api/admin/fixes", json=[{"stormId": "M1", "name": "MANUAL", "time": "2026-05-20T12:00Z",
                                           "lat": 12, "lon": 85, "wind": 35}]).get_json()

@@ -48,7 +48,8 @@ def _cors(resp):
 
 
 def mode():
-    return db.get_setting("mode", "live")
+    """Live pages always show live data; test storms have their own pages (Test-storm replay, District strike risk)."""
+    return "live"
 
 
 def _bearing_speed(track):
@@ -196,10 +197,9 @@ def api_mode():
     if request.method == "POST":
         body = request.get_json(silent=True) or {}
         m = str(body.get("mode", "live")).lower()
-        if m not in ("live", "replay"):
-            return jsonify({"success": False, "error": "mode must be 'live' or 'replay'"}), 400
-        if m == "replay" and not replay.available():
-            return jsonify({"success": False, "error": "replay data not installed (artifacts/replay)"}), 400
+        if m != "live":
+            return jsonify({"success": False, "error": "live pages always show live data; use the Test-storm "
+                                                       "replay page for past storms"}), 400
         db.set_setting("mode", m)
         if body.get("stormId"):
             db.set_setting("replay", {"stormId": body["stormId"], "step": body.get("step")})
