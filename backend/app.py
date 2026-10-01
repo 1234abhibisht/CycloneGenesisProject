@@ -230,6 +230,7 @@ def cyclone_active():
         "monitoringRegion": "North Indian Ocean (Bay of Bengal & Arabian Sea)",
         "environmentalBaseline": {k: base.get(k) for k in ("sea_surface_temp", "relative_humidity",
                                                            "vertical_wind_shear", "surface_pressure")},
+        "environmentalBaselines": occ.get("environmentalBaselines"),
         "lastChecked": db.now_iso(), "dataValidTime": occ.get("validTime"),
         "lastSystem": _last_system(),
         "sources": ["NOAA_GFS", "IBTRACS_ACTIVE", "GDACS"],

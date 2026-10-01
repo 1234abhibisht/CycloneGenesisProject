@@ -27,6 +27,7 @@ export async function fetchActiveCycloneData(): Promise<ActiveCycloneResponse> {
             active: false,
             monitoringRegion: json.monitoringRegion || 'North Indian Ocean (Bay of Bengal & Arabian Sea)',
             environmentalBaseline: json.environmentalBaseline || EMPTY_BASELINE,
+            environmentalBaselines: json.environmentalBaselines ?? null,
             dataValidTime: json.dataValidTime ?? null,
             lastSystem: json.lastSystem ?? null,
             lastChecked: json.lastChecked || new Date().toISOString(),
