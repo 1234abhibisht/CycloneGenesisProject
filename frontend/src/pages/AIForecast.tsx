@@ -45,7 +45,7 @@ export const AIForecast: React.FC = () => {
           {standby?.message || 'Track and intensity forecasts appear here when a storm is active in the North Indian Ocean.'}
         </p>
         <p className="text-sm text-[#4A6670] mt-3">
-          Open <strong>Test-storm forecast</strong> to see the real model output for the unseen 2007-08 test storms, or open Basin Watch
+          Open <strong>Forecast (Test Storms)</strong> to see the real model output for the unseen 2007-08 test storms, or open Basin Watch
           for the 24 h formation probabilities.
         </p>
       </div>

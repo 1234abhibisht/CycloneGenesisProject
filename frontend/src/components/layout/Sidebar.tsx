@@ -5,7 +5,7 @@ type NavIcon = ComponentType<{ size?: number; strokeWidth?: number }>;
 const sections: { title: string; items: [string, string, NavIcon][] }[] = [
   {title:'MONITOR',items:[['command','Overview',Compass],['live','Live monitoring',Radio],['basin','Basin watch',Waves]]},
   {title:'ANALYSE',items:[['forecast','Forecast (6-24 h)',TrendingUp],['warnings','District strike rate (live)',Bell]]},
-  {title:'RESEARCH',items:[['historical','Test-storm forecast',History],['test-strike','Test-storm district strike',MapPinned],['models','Model performance',Gauge],['system','Data & sources',Database]]}
+  {title:'RESEARCH',items:[['historical','Forecast (Test Storms)',History],['test-strike','District Strike Rate (Test Storms)',MapPinned],['models','Model performance',Gauge],['system','Data & sources',Database]]}
 ];
 export const Sidebar = ({isCollapsed,onToggle}:{isCollapsed:boolean;onToggle:()=>void}) => {
  const {pathname}=useLocation();

@@ -10,8 +10,8 @@ const pageTitles: Record<string, string> = {
   basin: 'Basin Watch · 24 h formation chance',
   forecast: 'Track & Intensity Forecast (6-24 h)',
   warnings: 'District Strike Rate (Live)',
-  'test-strike': 'Test-Storm District Strike',
-  historical: 'Test-Storm Forecast',
+  'test-strike': 'District Strike Rate (Test Storms)',
+  historical: 'Forecast (Test Storms)',
   models: 'Model Performance',
   system: 'Data & Sources',
 };
