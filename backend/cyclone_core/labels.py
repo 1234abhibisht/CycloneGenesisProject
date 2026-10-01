@@ -107,6 +107,8 @@ def storm_rows(tracks, info):
             r["y_peak_wind"] = np.nanmax(rest) if np.isfinite(rest).any() else np.nan
             r["y_peak_grade"] = float(imd_grade(r["y_peak_wind"])) if np.isfinite(r["y_peak_wind"]) else np.nan
             rows.append(r)
+    if not rows:                      # no time with a usable wind (e.g. a weak or wind-less live report)
+        return pd.DataFrame()
     df = pd.DataFrame(rows)
     df["split"] = df["year"].map(C.split_of)
     return df

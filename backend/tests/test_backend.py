@@ -333,7 +333,20 @@ def test_storm_feed_handling():
     assert [str(p["time"]) for p in pts] == ["2026-05-19 18:00:00", "2026-05-20 00:00:00"], pts
     assert pts[0]["wind"] == round(74 / 1.852 * C.USA_TO_WMO, 1) and pts[1]["wind"] is None
 
+    # e) the production crash: GDACS storms with no wind, or too weak, next to a real storm.
+    #    They must be skipped with a reason; the cycle must finish 'ok' and still forecast the real storm.
+    Xw, whyw, _ = live._storm_row(storms.fixes_frame("GDACS-9").assign(wind=np.nan), feats, statics, F, T0)
+    assert Xw is None and "no wind" in whyw
+    db.upsert_fixes([dict(storm_id="GDACS-1001326", name="WEAK", time="2026-05-20T12:00:00Z", lat=12.0, lon=84.0,
+                          wind=None, pres=None, source="GDACS"),
+                     dict(storm_id="GDACS-1001238", name="FEEBLE", time="2026-05-20T12:00:00Z", lat=13.0, lon=86.0,
+                          wind=12, pres=None, source="GDACS")])
     import app as API
+    res = live.run_cycle(API.STORE, download=False)
+    assert res["status"] == "ok", res
+    text = " | ".join(res["messages"])
+    assert "GDACS-1001326: skipped" in text and "GDACS-1001238: skipped" in text, text
+    assert "TEST01: forecast issued" in text, text
     assert API._last_system()["id"]                  # shown on Overview when no storm is active
     print("storm feed handling test passed")
 
