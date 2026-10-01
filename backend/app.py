@@ -311,7 +311,7 @@ def _zone_method():
     y = i.get("years") or ["?", "?"]
     return (f"Zones derived from IBTrACS {y[0]}-{y[1]}: {len(CFG.BASIN_ZONES)} circles of "
             f"{round(i.get('radiusKm') or CFG.BASIN_ZONE_RADIUS_KM)} km cover "
-            f"{round(100 * (i.get('positionCoverage') or 0))}% of all depression-or-stronger positions and "
+            f"{round(100 * (i.get('positionCoverage') or 0))}% of all depression-or-stronger positions at sea and "
             f"{round(100 * (i.get('genesisCoverage') or 0))}% of formation points ({i.get('storms')} storms).")
 
 
