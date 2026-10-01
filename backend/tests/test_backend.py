@@ -182,7 +182,7 @@ def test_end_to_end():
     assert len(have) == len(F["time"]) == 9
     from core import features_grid
     feats, statics = features_grid.compute(F)
-    X, why = live._storm_row(storms.fixes_frame("TEST01"), feats, statics, F, T0)
+    X, why, _ = live._storm_row(storms.fixes_frame("TEST01"), feats, statics, F, T0)
     assert X is not None, why
     meta = {"SID", "NAME", "time", "year", "split", "y_ri", "y_peak_wind", "y_peak_grade"}
     storm_cols = [c for c in X.columns if c not in meta and not c.startswith("y_")
@@ -216,6 +216,8 @@ def test_end_to_end():
 
     act = c.get("/api/cyclone/active").get_json()
     assert act["active"] and act["data"][0]["id"] == "TEST01", act
+    inp = act["data"][0]["inputs"]
+    assert inp["fixCount"] == 5 and inp["confidence"] == "good" and inp["gfsValidTime"], inp
     pred = c.get("/api/cyclone/TEST01/predictions").get_json()["data"]
     assert [p["forecastHour"] for p in pred["forecastPoints"]] == [6, 12, 18, 24]
     assert all("predictedPressure" not in p for p in pred["forecastPoints"])     # no pressure forecast
@@ -252,5 +254,63 @@ def test_end_to_end():
     print("backend end-to-end test passed; temp folder:", TMP)
 
 
+def test_storm_feed_handling():
+    """Off-hour GDACS times, single positions, duplicate storm ids and GDACS track parsing."""
+    db.init()
+    from core import features_grid
+    F, _ = gfs.assemble_F(T0)
+    feats, statics = features_grid.compute(F)
+
+    # a) one GDACS position at 10:23 (not a GFS time): before the fix this gave no forecast
+    db.upsert_fixes([dict(storm_id="GDACS-9", name="OFFHOUR", time="2026-05-20T10:23:00Z", lat=15.1, lon=86.9,
+                          wind=40, pres=None, source="GDACS")])
+    fx = storms.fixes_frame("GDACS-9")
+    assert str(fx["ISO_TIME"].iloc[0]) == "2026-05-20 10:00:00"
+    X, why, note = live._storm_row(fx, feats, statics, F, T0)
+    assert X is not None, why
+    assert str(X["time"].iloc[0]) == "2026-05-20 09:00:00" and note, (X["time"].iloc[0], note)
+    assert live.track_quality(fx)["confidence"] == "single"
+
+    # b) two positions 13:00 and 14:00 that straddle no GFS time but are newer than t0=12Z -> held back to 12Z
+    fx2 = pd.DataFrame({"SID": "S2", "NAME": "X", "ISO_TIME": pd.to_datetime(["2026-05-20 13:00", "2026-05-20 14:00"]),
+                        "LAT": [15.0, 15.1], "LON": [87.0, 86.9], "wind": [40.0, 42.0], "pres": [np.nan, np.nan],
+                        "wind_from_usa": False})
+    X2, why2, _ = live._storm_row(fx2, feats, statics, F, T0)
+    assert X2 is not None and str(X2["time"].iloc[0]) == "2026-05-20 12:00:00", why2
+
+    # c) the same storm under a GDACS id and an IBTrACS SID is merged into the SID
+    db.upsert_fixes([dict(storm_id="GDACS-77", name="MONTHA-25", time="2026-05-19T06:00:00Z", lat=12.0, lon=90.0,
+                          wind=45, pres=None, source="GDACS"),
+                     dict(storm_id="2026139N11090", name="MONTHA", time="2026-05-19T00:00:00Z", lat=11.8, lon=90.2,
+                          wind=40, pres=None, source="IBTRACS_ACTIVE")])
+    merged = storms.merge_duplicates(days=100000)
+    assert "GDACS-77->2026139N11090" in merged, merged
+    assert db.fixes_for("GDACS-77") == [] and len(db.fixes_for("2026139N11090")) == 2
+    assert "GDACS-9->TEST01" not in merged          # different names are never merged
+    assert storms.norm_name("MONTHA-25") == "MONTHA" and storms.norm_name("ONE-26") == ""
+    assert storms.norm_name("NOT_NAMED") == "" and storms.norm_name("TC Ditwah") == "DITWAH"
+
+    # d) GDACS geometry: past points kept, forecast / future points dropped, km/h winds converted
+    geo = {"features": [
+        {"geometry": {"type": "Point", "coordinates": [88.0, 14.0]},
+         "properties": {"trackdate": "2026-05-19T18:00:00Z", "windspeed": 74, "windunit": "km/h"}},
+        {"geometry": {"type": "Point", "coordinates": [87.5, 14.5]},
+         "properties": {"trackdate": "2026-05-20T00:10:00Z"}},
+        {"geometry": {"type": "Point", "coordinates": [87.0, 15.0]},
+         "properties": {"trackdate": "2026-05-21T00:00:00Z"}},                      # after latest -> forecast
+        {"geometry": {"type": "Point", "coordinates": [87.2, 14.8]},
+         "properties": {"Class": "Point_Forecast", "trackdate": "2026-05-20T03:00:00Z"}},
+        {"geometry": {"type": "Polygon", "coordinates": []}, "properties": {}},
+    ]}
+    pts = storms._gdacs_track_points(geo, pd.Timestamp("2026-05-20 06:00"))
+    assert [str(p["time"]) for p in pts] == ["2026-05-19 18:00:00", "2026-05-20 00:00:00"], pts
+    assert pts[0]["wind"] == round(74 / 1.852 * C.USA_TO_WMO, 1) and pts[1]["wind"] is None
+
+    import app as API
+    assert API._last_system()["id"]                  # shown on Overview when no storm is active
+    print("storm feed handling test passed")
+
+
 if __name__ == "__main__":
     test_end_to_end()
+    test_storm_feed_handling()
