@@ -130,10 +130,9 @@ python tests/test_backend.py             # offline end-to-end test (synthetic da
 | `GET/POST /api/mode` | `live` or `replay` |
 | `POST /api/admin/refresh` · `/api/admin/fixes` · `/api/admin/reload-models` | run a cycle, add storm positions, reload models |
 
-## 4. Deploy (when needed)
+## 4. Deploy
 
-* **One server (simplest):** run `npm run build` in `frontend/` with `VITE_API_URL=/api`. Then run the backend; `app.py` serves `frontend/dist` and the API from port 8000. On Linux, use `gunicorn -w 1 -b 0.0.0.0:8000 app:app` and keep exactly one worker so that only one scheduler runs.
-* **Split:** put the frontend on Vercel (`frontend/vercel.json` is included) with `VITE_API_URL=https://<your-backend>/api`. Put the backend on any VM or Render/Railway service that has about 1 GB of disk for the GFS files.
+** Deployed to render using our github repo.
 
 ## 5. Train again
 
