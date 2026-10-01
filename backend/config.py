@@ -93,8 +93,9 @@ def _load_basin_zones():
         if zones:
             BASIN_ZONES = zones
             BASIN_ZONE_RADIUS_KM = float(d.get("radiusKm", BASIN_ZONE_RADIUS_KM))
-            BASIN_ZONES_INFO = {k: d.get(k) for k in ("method", "years", "storms", "positions",
+            BASIN_ZONES_INFO = {k: d.get(k) for k in ("method", "years", "storms", "positions", "cellAssignment",
                                                       "positionCoverage", "genesisCoverage", "radiusKm")}
+            BASIN_ZONES_INFO["added"] = [z["name"] for z in d["zones"] if z.get("addedForCoast")]
     except (OSError, ValueError, KeyError, TypeError) as e:
         print(f"basin_zones.json ignored ({e}); using the built-in zones")
 

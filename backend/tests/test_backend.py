@@ -231,6 +231,12 @@ def test_end_to_end():
     basin = c.get("/api/basin/risk").get_json()["data"]
     assert basin["status"] == "LIVE" and len(basin["zones"]) == len(CFG.BASIN_ZONES)
     assert max(z["probability"] or 0 for z in basin["zones"]) > 0
+    ids = {z["id"] for z in basin["zones"]}
+    assert basin["cells"] and all(c["zone"] in ids for c in basin["cells"])        # every cell has a zone
+    for z in basin["zones"]:                     # a zone's value is the highest cell assigned to it
+        mine = [c["pCsPlus"] for c in basin["cells"] if c["zone"] == z["id"]]
+        if mine and z["probability"] is not None:
+            assert z["probability"] >= round(100 * max(mine), 1) - 0.1, (z, max(mine))
     assert c.get("/api/districts/coastal").get_json()["total"] > 10
     assert c.get("/api/sql/records?limit=3").get_json()["total_count"] == 5
 

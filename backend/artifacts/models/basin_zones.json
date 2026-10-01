@@ -1,5 +1,5 @@
 {
-  "method": "Greedy coverage of IBTrACS North Indian Ocean depression-or-stronger positions 1990-2025 at sea (6-hourly) with 400 km circles",
+  "method": "12 zones by greedy coverage of IBTrACS North Indian Ocean depression-or-stronger positions 1990-2025 at sea (6-hourly, 400 km circles), plus 2 added for active coastlines; every model cell belongs to its nearest zone",
   "source": "ibtracs_NI_v04r01_IMD_wind.csv",
   "years": [
     1990,
@@ -8,8 +8,15 @@
   "radiusKm": 400,
   "storms": 302,
   "positions": 3001,
-  "positionCoverage": 0.9,
-  "genesisCoverage": 0.821,
+  "positionCoverage": 0.93,
+  "genesisCoverage": 0.851,
+  "cellAssignment": "nearest",
+  "cells": 3147,
+  "cellDistanceKm": {
+    "median": 350,
+    "p95": 849,
+    "max": 1615
+  },
   "zones": [
     {
       "id": "northwest-bay-odisha-coast",
@@ -18,7 +25,18 @@
       "lat": 18.5,
       "lon": 88.5,
       "positionShare": 0.181,
-      "genesisCount": 80
+      "genesisCount": 80,
+      "addedForCoast": false
+    },
+    {
+      "id": "northeast-bay-myanmar-coast",
+      "name": "Northeast Bay & Myanmar Coast",
+      "basin": "Bay of Bengal",
+      "lat": 18.5,
+      "lon": 92.5,
+      "positionShare": 0.068,
+      "genesisCount": 16,
+      "addedForCoast": true
     },
     {
       "id": "west-central-bay-andhra-coast",
@@ -27,7 +45,8 @@
       "lat": 16.0,
       "lon": 82.0,
       "positionShare": 0.099,
-      "genesisCount": 18
+      "genesisCount": 18,
+      "addedForCoast": false
     },
     {
       "id": "central-bay-of-bengal",
@@ -36,7 +55,8 @@
       "lat": 13.0,
       "lon": 84.5,
       "positionShare": 0.215,
-      "genesisCount": 40
+      "genesisCount": 40,
+      "addedForCoast": false
     },
     {
       "id": "southwest-bay-of-bengal",
@@ -45,7 +65,8 @@
       "lat": 12.5,
       "lon": 80.5,
       "positionShare": 0.1,
-      "genesisCount": 17
+      "genesisCount": 17,
+      "addedForCoast": false
     },
     {
       "id": "southeast-bay-of-bengal",
@@ -54,7 +75,18 @@
       "lat": 12.0,
       "lon": 90.5,
       "positionShare": 0.105,
-      "genesisCount": 39
+      "genesisCount": 39,
+      "addedForCoast": false
+    },
+    {
+      "id": "andaman-sea",
+      "name": "Andaman Sea",
+      "basin": "Bay of Bengal",
+      "lat": 12.0,
+      "lon": 96.0,
+      "positionShare": 0.018,
+      "genesisCount": 9,
+      "addedForCoast": true
     },
     {
       "id": "south-bay-of-bengal",
@@ -63,7 +95,8 @@
       "lat": 8.0,
       "lon": 85.0,
       "positionShare": 0.112,
-      "genesisCount": 34
+      "genesisCount": 34,
+      "addedForCoast": false
     },
     {
       "id": "ne-arabian-sea-gujarat-coast",
@@ -72,7 +105,8 @@
       "lat": 22.0,
       "lon": 65.0,
       "positionShare": 0.069,
-      "genesisCount": 8
+      "genesisCount": 8,
+      "addedForCoast": false
     },
     {
       "id": "east-central-arabian-sea",
@@ -81,7 +115,8 @@
       "lat": 18.0,
       "lon": 67.0,
       "positionShare": 0.12,
-      "genesisCount": 17
+      "genesisCount": 17,
+      "addedForCoast": false
     },
     {
       "id": "nw-arabian-sea-oman-coast",
@@ -90,7 +125,8 @@
       "lat": 17.0,
       "lon": 59.5,
       "positionShare": 0.035,
-      "genesisCount": 0
+      "genesisCount": 0,
+      "addedForCoast": false
     },
     {
       "id": "se-arabian-sea-lakshadweep",
@@ -99,7 +135,8 @@
       "lat": 13.5,
       "lon": 70.5,
       "positionShare": 0.065,
-      "genesisCount": 25
+      "genesisCount": 25,
+      "addedForCoast": false
     },
     {
       "id": "central-arabian-sea",
@@ -108,7 +145,8 @@
       "lat": 12.0,
       "lon": 63.5,
       "positionShare": 0.049,
-      "genesisCount": 16
+      "genesisCount": 16,
+      "addedForCoast": false
     },
     {
       "id": "southwest-arabian-sea",
@@ -117,7 +155,8 @@
       "lat": 8.5,
       "lon": 58.0,
       "positionShare": 0.023,
-      "genesisCount": 6
+      "genesisCount": 6,
+      "addedForCoast": false
     }
   ]
 }

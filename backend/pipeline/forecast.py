@@ -199,10 +199,12 @@ def build_occurrence(store, feats, statics, lat, lon, k, t0, storm_positions):
     if probs is not None:
         df["p_cs_plus"] = probs[:, 2:].sum(axis=1)
         df["p_any"] = probs[:, 1:].sum(axis=1)
+    # every model cell belongs to exactly one zone: the zone whose centre is nearest
+    zone_d = np.stack([common.haversine(clat, clon, zlat, zlon) for _, _, _, zlat, zlon in CFG.BASIN_ZONES])
+    df["zone"] = zone_d.argmin(axis=0)
     zones = []
-    for zid, name, basin, zlat, zlon in CFG.BASIN_ZONES:
-        m = common.haversine(clat, clon, zlat, zlon) <= CFG.BASIN_ZONE_RADIUS_KM
-        sub = df[m]
+    for zi, (zid, name, basin, zlat, zlon) in enumerate(CFG.BASIN_ZONES):
+        sub = df[df["zone"].values == zi]
         p = float(sub["p_cs_plus"].max()) if probs is not None and len(sub) else None
         level = None if p is None else ("HIGH" if p >= thr else "MODERATE" if p >= thr / 3 else "LOW")
         zones.append({"id": zid, "name": name, "basin": basin, "lat": zlat, "lon": zlon,
@@ -214,7 +216,8 @@ def build_occurrence(store, feats, statics, lat, lon, k, t0, storm_positions):
     if probs is not None:
         hot = df[df["p_any"] >= 0.02]
         cells = [{"lat": _f(r.lat, 2), "lon": _f(r.lon, 2), "pAny": _f(r.p_any, 3), "pCsPlus": _f(r.p_cs_plus, 3),
-                  "warning": bool(r.p_cs_plus >= thr)} for r in hot.itertuples()]
+                  "warning": bool(r.p_cs_plus >= thr), "zone": CFG.BASIN_ZONES[int(r.zone)][0]}
+                 for r in hot.itertuples()]
     bay = (df["lon"] >= 80) & (df["lon"] <= 95) & (df["lat"] >= 8) & (df["lat"] <= 22)
     baseline = {"sea_surface_temp": _f(np.nanmean(df.loc[bay, "sst_c"]), 1),
                 "relative_humidity": _f(np.nanmean(df.loc[bay, "rh_mid_mean"]), 0),
