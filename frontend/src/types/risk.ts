@@ -35,6 +35,53 @@ export interface DetailedDistrictRisk {
   forecastWindow: string;
   estimatedWindKts: number | null; // forecast wind near closest approach (only if within 150 km)
   riskScore: number | null; // 24 h strike probability in %
+  // Test-storm replay only: what the real storm did in the same 0-24 h window (IBTrACS best track)
+  actualHit?: boolean | null; // real centre passed within 100 km
+  actualDistanceKm?: number | null; // real closest approach
+  actualHour?: number | null; // hours after issue at the closest approach
+}
+
+export interface ActualStrikeSummary {
+  windowHours: number;
+  trackComplete: boolean; // real track covers the whole 24 h window
+  observedTrackEnds: string | null;
+  districtsHit: number;
+  hitsWithOrangeOrRed: number;
+  hitsWithYellowOrAbove: number;
+  orangeOrRedDistricts: number;
+  orangeOrRedHit: number;
+  source: string;
+}
+
+export interface StrikeVerificationBin {
+  label: string;
+  forecasts: number;
+  meanPredicted: number | null;
+  hits: number;
+  observedFrequency: number | null;
+}
+
+/** Model strike probabilities vs. reality over every forecast time of every test storm. */
+export interface StrikeVerification {
+  available: boolean;
+  reason?: string;
+  storms: number;
+  forecastTimes: number;
+  pairs: number;
+  hits: number;
+  baseRate: number;
+  brier: number;
+  brierClimatology: number;
+  brierSkill: number | null;
+  detectedOrangeOrRed: number;
+  detectedYellowOrAbove: number;
+  orangeOrRedForecasts: number;
+  orangeOrRedCorrect: number;
+  bins: StrikeVerificationBin[];
+  windowHours: number;
+  radiusKm: number;
+  truth: string;
+  climatology: string;
 }
 
 // Backwards compatibility alias for legacy components
@@ -84,4 +131,7 @@ export interface GISRiskAnalysisResult {
   landfall: LandfallPrediction;
   bulletin: IMDBulletin | null;
   districts: DetailedDistrictRisk[];
+  mode?: 'live' | 'replay';
+  replay?: { step: number; totalSteps: number } | null;
+  actualSummary?: ActualStrikeSummary | null;
 }

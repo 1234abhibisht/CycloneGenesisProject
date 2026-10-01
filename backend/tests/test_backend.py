@@ -248,6 +248,23 @@ def test_end_to_end():
     rp = c.get("/api/historical/2007314N10093/replay?step=4").get_json()["data"]
     assert rp["replayState"]["currentStep"] == 4 and len(rp["forecast"]) == 4
 
+    # district strike risk for a chosen test storm and step, with what really happened
+    rr = c.get("/api/cyclone/2007314N10093/risk?step=8").get_json()
+    assert rr["mode"] == "replay" and rr["replay"]["step"] == 8 and rr["actualSummary"]["trackComplete"] is False
+    rr = c.get("/api/cyclone/2007314N10093/risk?step=6").get_json()
+    assert rr["replay"]["step"] == 6 and rr["actualSummary"]["trackComplete"] is True, rr["actualSummary"]
+    d_hit = [d for d in rr["districts"] if d["actualHit"]]
+    assert all(d["actualDistanceKm"] <= 100 for d in d_hit)
+    assert all(d["actualHit"] is not None and d["actualDistanceKm"] is not None for d in rr["districts"])
+    assert rr["actualSummary"]["districtsHit"] == len(d_hit)
+    from pipeline import replay as RP
+    v = RP.strike_verification(API.STORE, wait=True)
+    assert v["status"] == "ready" and v["result"]["available"], v
+    res = v["result"]
+    assert res["pairs"] == sum(b["forecasts"] for b in res["bins"]) and res["hits"] == sum(b["hits"] for b in res["bins"])
+    sv = c.get("/api/historical/strike-verification").get_json()
+    assert sv["state"] == "ready" and sv["data"]["forecastTimes"] >= 1
+
     assert c.post("/api/mode", json={"mode": "replay"}).get_json()["success"]
     act = c.get("/api/cyclone/active").get_json()
     assert act["status"] == "REPLAY" and act["data"][0]["name"] == "Sidr"

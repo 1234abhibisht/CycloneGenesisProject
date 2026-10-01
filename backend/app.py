@@ -120,15 +120,17 @@ def current_payloads():
     return db.latest_forecasts("live", since)
 
 
-def find_payload(storm_id):
+def find_payload(storm_id, step=None):
     storm_id = (storm_id or "ACTIVE")
     if storm_id.upper() in ("ACTIVE", "DEFAULT", "CURRENT", ""):
         pls = current_payloads()
         return pls[0] if pls else None
     if mode() == "replay" or (replay.available() and (replay.table()["SID"] == storm_id).any()):
-        _, step = _replay_selection()
-        sel = db.get_setting("replay", {}) or {}
-        return replay.replay(STORE, storm_id, step if sel.get("stormId") == storm_id else None)
+        if step is None:
+            _, step = _replay_selection()
+            sel = db.get_setting("replay", {}) or {}
+            step = step if sel.get("stormId") == storm_id else None
+        return replay.replay(STORE, storm_id, step)
     return db.latest_forecast(storm_id, "live")
 
 
@@ -260,7 +262,7 @@ def cyclone_predictions(storm_id):
 
 @app.route("/api/cyclone/<storm_id>/risk")
 def cyclone_risk(storm_id):
-    pl = find_payload(storm_id)
+    pl = find_payload(storm_id, request.args.get("step", default=None, type=int))
     if not pl or not pl.get("districts"):
         return jsonify({"status": 200, "stormId": "STANDBY", "stormName": "", "generatedAt": db.now_iso(),
                         "summary": {"totalDistrictsEvaluated": 0, "redAlertCount": 0, "orangeAlertCount": 0,
@@ -295,6 +297,9 @@ def cyclone_risk(storm_id):
                     "orangeAlertCount": count("ORANGE"), "yellowAlertCount": count("YELLOW"),
                     "highestRiskDistrict": top["districtName"]},
         "landfall": landfall, "bulletin": bulletin, "districts": ds,
+        "mode": pl.get("mode"),
+        "replay": None if pl.get("mode") != "replay" else {"step": pl.get("step"), "totalSteps": pl.get("totalSteps")},
+        "actualSummary": pl.get("actualSummary"),
     })
 
 
@@ -353,6 +358,17 @@ def occurrence_grid():
 def historical_catalog():
     cat = replay.catalog() if replay.available() else []
     return jsonify({"status": 200, "total": len(cat), "storms": cat})
+
+
+@app.route("/api/historical/strike-verification")
+def strike_verification():
+    """Model strike probabilities vs. what really happened, over every forecast time of every test storm."""
+    if not replay.available():
+        return jsonify({"status": 404, "error": "replay data not installed"}), 404
+    if not (STORE.track_ready or STORE.intensity_ready):
+        return models_missing_response()
+    v = replay.strike_verification(STORE)
+    return jsonify({"status": 200, "state": v["status"], "error": v.get("error"), "data": v.get("result")})
 
 
 @app.route("/api/historical/<storm_id>/replay")
@@ -457,6 +473,8 @@ def _scheduler():
 
 
 def start_scheduler():
+    if replay.available() and (STORE.track_ready or STORE.intensity_ready):
+        replay.strike_verification(STORE)            # background: test-storm strike check, cached on disk
     if CFG.AUTO_PIPELINE:
         threading.Thread(target=_scheduler, daemon=True, name="live-pipeline").start()
 
