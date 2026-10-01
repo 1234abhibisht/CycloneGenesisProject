@@ -25,7 +25,6 @@ RUN pip install --no-cache-dir -r backend/requirements.txt \
 COPY backend/ backend/
 COPY --from=web /web/dist frontend/dist
 RUN mkdir -p backend/data && chown -R user:user /app
-USER user
 
 ENV HOST=0.0.0.0 PORT=7860 AUTO_PIPELINE=1
 EXPOSE 7860
