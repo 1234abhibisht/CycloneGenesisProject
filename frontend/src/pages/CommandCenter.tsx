@@ -48,7 +48,7 @@ export const CommandCenter = () => {
         <Link className="brief-action" to="/dashboard/forecast">Open forecast analysis <ArrowUpRight size={16}/></Link>
       </aside>
     </div>
-    <section className="workspace-paths" aria-label="Analysis tools">{[{n:'03',title:'Basin watch',body:'Chance of a cyclone forming within 200 km in the next 24 hours.',to:'basin'},{n:'04',title:'District strike risk',body:'Probability that the storm centre passes within 100 km of each coastal district.',to:'warnings'},{n:'05',title:'Data & provenance',body:'Check sources, availability and model information.',to:'system'}].map(item=><Link key={item.n} to={`/dashboard/${item.to}`}><span className="eyebrow">{item.n} / EXPLORE</span><h3>{item.title}<ArrowUpRight size={18}/></h3><p>{item.body}</p></Link>)}</section>
+    <section className="workspace-paths" aria-label="Analysis tools">{[{n:'03',title:'Basin watch',body:'Chance of a cyclone forming within 200 km in the next 24 hours.',to:'basin'},{n:'04',title:'District strike rate (live)',body:'Probability that the storm centre passes within 100 km of each coastal district.',to:'warnings'},{n:'05',title:'Data & provenance',body:'Check sources, availability and model information.',to:'system'}].map(item=><Link key={item.n} to={`/dashboard/${item.to}`}><span className="eyebrow">{item.n} / EXPLORE</span><h3>{item.title}<ArrowUpRight size={18}/></h3><p>{item.body}</p></Link>)}</section>
     <footer className="basin-footer"><span><Layers size={13}/> Cyclone AI · Research workspace</span><span>For official warnings, consult <a href="https://rsmcnewdelhi.imd.gov.in/" target="_blank" rel="noreferrer">IMD / RSMC New Delhi ↗</a></span></footer>
   </div>;
 };

@@ -9,8 +9,9 @@ const pageTitles: Record<string, string> = {
   live: 'Live Monitoring',
   basin: 'Basin Watch · 24 h formation chance',
   forecast: 'Track & Intensity Forecast (6-24 h)',
-  warnings: 'District Strike Risk',
-  historical: 'Test-Storm Replay',
+  warnings: 'District Strike Rate (Live)',
+  'test-strike': 'Test-Storm District Strike',
+  historical: 'Test-Storm Forecast',
   models: 'Model Performance',
   system: 'Data & Sources',
 };
