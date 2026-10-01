@@ -9,7 +9,7 @@ Method (deterministic, no random seed):
      "Genesis points" = the first such fix of each storm.
   3. Candidate zone centres = every 0.5 deg sea box that held a cyclone position.
   4. Greedy coverage: repeatedly add the centre whose RADIUS_KM circle covers the most
-     not-yet-covered cyclone positions, until TARGET_COVERAGE of them are covered
+     not-yet-covered cyclone positions at sea, until TARGET_COVERAGE of them are covered
      (or MAX_ZONES is reached). A new centre must be at least MIN_SEPARATION_KM from the others.
   5. Each zone is named after the nearest standard sea-area name (IMD style).
   6. Writes basin_zones.json with the zones and the coverage statistics.
@@ -39,10 +39,10 @@ FIRST_YEAR, LAST_YEAR = 1990, 2025
 DOMAIN = dict(lat_min=5.0, lat_max=35.0, lon_min=55.0, lon_max=100.0)   # the occurrence model's grid
 DEPRESSION_KT = 17
 USA_TO_WMO = 0.88
-RADIUS_KM = 350            # same radius the backend uses to summarise a zone
+RADIUS_KM = 400            # the backend summarises each zone over this radius
 TARGET_COVERAGE = 0.95
 MAX_ZONES = 12
-MIN_SEPARATION_KM = 350
+MIN_SEPARATION_KM = 400
 
 # Land-sea masks of the model grid (0.25 deg, 5-35N x 55-100E, 121 x 181, from backend/artifacts/data/lsm.npy),
 # bit-packed so this script needs no other file: SEA = ocean cells, MODEL = cells the occurrence model covers.
@@ -99,7 +99,12 @@ def load_fixes(path):
         df = df[df["TRACK_TYPE"].astype(str).str.strip().str.lower() == "main"]
     if "BASIN" in df:
         df = df[df["BASIN"].astype(str).str.strip() == "NI"]
-    df["ISO_TIME"] = pd.to_datetime(df["ISO_TIME"], errors="coerce")
+    t = df["ISO_TIME"].astype(str).str.strip()
+    dmy = t.str.match(r"^\d{1,2}-\d{1,2}-\d{4}")          # file re-saved by Excel: 31-12-2019 18:00
+    df["ISO_TIME"] = pd.NaT
+    df.loc[~dmy, "ISO_TIME"] = pd.to_datetime(t[~dmy], errors="coerce", format="mixed")
+    df.loc[dmy, "ISO_TIME"] = pd.to_datetime(t[dmy], errors="coerce", dayfirst=True, format="mixed")
+    df["ISO_TIME"] = pd.to_datetime(df["ISO_TIME"])
     for c in ("LAT", "LON", "WMO_WIND", "USA_WIND", "SEASON"):
         if c in df:
             df[c] = pd.to_numeric(df[c], errors="coerce")
@@ -168,6 +173,8 @@ def main():
     gen = fx.groupby("SID").first()
     glat, glon = gen["LAT"].to_numpy(float), gen["LON"].to_numpy(float)
 
+    at_sea = on_mask(SEA, lat, lon)
+    lat, lon = lat[at_sea], lon[at_sea]                 # zones are judged on positions over the sea
     centres, covers = choose_zones(lat, lon)
     names = name_zones(centres)
     zones = []
@@ -184,16 +191,16 @@ def main():
     gen_cov = float((gd <= RADIUS_KM).any(axis=0).mean())
     out = {
         "method": (f"Greedy coverage of IBTrACS North Indian Ocean depression-or-stronger positions "
-                   f"{FIRST_YEAR}-{LAST_YEAR} (6-hourly, inside 5-35N 55-100E) with {RADIUS_KM} km circles"),
+                   f"{FIRST_YEAR}-{LAST_YEAR} at sea (6-hourly) with {RADIUS_KM} km circles"),
         "source": SRC.name, "years": [FIRST_YEAR, LAST_YEAR], "radiusKm": RADIUS_KM,
-        "storms": int(len(gen)), "positions": int(len(fx)),
+        "storms": int(len(gen)), "positions": int(len(lat)),
         "positionCoverage": round(pos_cov, 3), "genesisCoverage": round(gen_cov, 3),
         "zones": zones,
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, indent=2))
-    print(f"{len(gen)} storms, {len(fx)} positions -> {len(zones)} zones")
-    print(f"zones cover {100 * pos_cov:.1f}% of positions and {100 * gen_cov:.1f}% of genesis points")
+    print(f"{len(gen)} storms, {len(lat)} positions at sea -> {len(zones)} zones")
+    print(f"zones cover {100 * pos_cov:.1f}% of positions at sea and {100 * gen_cov:.1f}% of genesis points")
     for z in zones:
         print(f"  {z['name']:<42} {z['lat']:5.1f}N {z['lon']:5.1f}E  positions {100 * z['positionShare']:4.1f}%  "
               f"genesis {z['genesisCount']}")
