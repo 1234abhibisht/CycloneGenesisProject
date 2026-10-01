@@ -93,6 +93,7 @@ def to_active_cyclone(pl):
         "currentPosition": cur, "status": "active", "lastUpdated": pl.get("generatedAt"),
         "dataSource": "replay" if is_replay else "live", "isReplay": is_replay,
         "environmental": pl.get("environmental"),
+        "dataTime": pl.get("dataTime"), "inputs": pl.get("inputs"),
     }
 
 
@@ -205,6 +206,14 @@ def api_mode():
 
 
 # ================================================================ cyclones
+def _last_system():
+    s = db.last_storm()
+    if not s:
+        return None
+    name = s["name"] or s["storm_id"]
+    return {"id": s["storm_id"], "name": name, "lastSeen": s["time"]}
+
+
 @app.route("/api/cyclone/active")
 def cyclone_active():
     pls = current_payloads()
@@ -220,6 +229,7 @@ def cyclone_active():
         "environmentalBaseline": {k: base.get(k) for k in ("sea_surface_temp", "relative_humidity",
                                                            "vertical_wind_shear", "surface_pressure")},
         "lastChecked": db.now_iso(), "dataValidTime": occ.get("validTime"),
+        "lastSystem": _last_system(),
         "sources": ["NOAA_GFS", "IBTRACS_ACTIVE", "GDACS"],
         "message": "No active cyclone in the North Indian Ocean. Basin formation probabilities are on Basin Watch; "
                    "switch to replay mode to explore the 2007-08 test storms.",
@@ -244,6 +254,7 @@ def cyclone_predictions(storm_id):
         "rapidIntensification": pl.get("rapidIntensification"), "peakIntensity": pl.get("peakIntensity"),
         "currentObservation": pl["current"], "leadHours": pl["leadHours"],
         "actualFutureTrack": pl.get("actualFutureTrack"),
+        "dataTime": pl.get("dataTime"), "inputs": pl.get("inputs"),
     }})
 
 

@@ -11,6 +11,7 @@ import { IntensityChart } from '../components/charts/IntensityChart';
 import { getModelPerformance, errorAt } from '../services/modelService';
 import type { PerformanceSummary } from '../types/model';
 import { FORECAST_HOURS, type ForecastPoint } from '../types/prediction';
+import { ageLabel, confidenceNote, fmtIST, fmtUTC, trackHistoryLabel } from '../utils/dataAge';
 
 const card = 'bg-[#FFFFFF] border border-[#CFE5E9]/60 rounded-xl p-5 shadow-sm';
 const trendColor = (t?: string | null) =>
@@ -32,6 +33,8 @@ export const AIForecast: React.FC = () => {
     .filter((p) => p.predictedWind != null)
     .map((p) => ({ time: p.timestamp, windSpeed: p.predictedWind as number, errorKt: errorAt(perf?.intensity, main, p.forecastHour) }));
   const future = prediction?.actualFutureTrack || [];
+  const inputs = cyclone && !cyclone.isReplay ? cyclone.inputs : null;
+  const lowConfidence = confidenceNote(inputs);
   const origin: [number, number] | undefined = cyclone ? [cyclone.currentPosition.lat, cyclone.currentPosition.lon] : undefined;
 
   if (!loading && !cyclone) {
@@ -64,6 +67,12 @@ export const AIForecast: React.FC = () => {
             Issued {prediction?.issuedAt ? new Date(prediction.issuedAt).toUTCString().replace('GMT', 'UTC') : '—'}
             {cyclone?.isReplay ? ' · REPLAY of a test storm the model never saw' : ' · live NOAA GFS input'}
           </p>
+          {inputs && (
+            <p className="text-xs text-[#4A6670] mt-0.5">
+              GFS data valid {fmtUTC(inputs.gfsValidTime)} ({ageLabel(inputs.gfsValidTime)}) · track history {trackHistoryLabel(inputs)}
+              {inputs.sources.length > 0 ? ` from ${inputs.sources.join(', ').replace('IBTRACS_ACTIVE', 'IBTrACS')}` : ''}
+            </p>
+          )}
         </div>
         <div className="text-[11px] text-[#4A6670] max-w-xs">
           Model guidance for research, not an official warning. Follow IMD / RSMC New Delhi.
@@ -75,6 +84,10 @@ export const AIForecast: React.FC = () => {
           Forecast not available yet — the trained models may not be installed on the backend (see README), or the first
           live cycle is still running.
         </div>
+      )}
+
+      {lowConfidence && (
+        <div className={`${card} text-sm text-[#A15C07]`}>{lowConfidence}</div>
       )}
 
       {/* Lead cards: +6 / +12 / +18 / +24 h */}
@@ -101,6 +114,8 @@ export const AIForecast: React.FC = () => {
               <div className="space-y-1 text-xs text-[#4A6670] mt-3 pt-3 border-t border-[#CFE5E9]/40 font-mono">
                 <div className="flex justify-between"><span>Change:</span>
                   <strong className={trendColor(f?.trend)}>{f?.windChange != null ? `${f.windChange > 0 ? '+' : ''}${Math.round(f.windChange)} kt` : '—'}</strong></div>
+                <div className="flex justify-between"><span>Valid:</span>
+                  <strong className="text-[#0B2A33]" title={f ? fmtIST(f.timestamp) : undefined}>{f ? fmtUTC(f.timestamp) : '—'}</strong></div>
                 <div className="flex justify-between"><span>Position:</span>
                   <strong className="text-[#0B2A33]">{f ? `${f.lat.toFixed(1)}°N ${f.lon.toFixed(1)}°E` : '—'}</strong></div>
                 <div className="flex justify-between text-[#0B7F8E]"><span>Test error:</span>

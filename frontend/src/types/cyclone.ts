@@ -34,6 +34,17 @@ export interface Cyclone {
   track: TrackPoint[];
 }
 
+/** What a live forecast was built from (live mode only; absent in replay). */
+export interface ForecastInputs {
+  fixCount: number;          // real storm positions used
+  trackHours: number;        // hours between the first and last position
+  confidence: 'good' | 'limited' | 'single';
+  lastFixTime: string | null;
+  gfsValidTime: string;      // NOAA GFS time the environment fields come from
+  sources: string[];         // IBTRACS_ACTIVE / GDACS / MANUAL
+  note?: string | null;
+}
+
 export interface ActiveCyclone extends Cyclone {
   currentPosition: TrackPoint;
   status: 'active' | 'dissipated' | 'post-tropical';
@@ -45,6 +56,8 @@ export interface ActiveCyclone extends Cyclone {
     windShear: number | null; // knots
     relativeHumidity: number | null;
   };
+  dataTime?: string | null;
+  inputs?: ForecastInputs | null;
 }
 
 export interface OperationalStandbyState {
@@ -59,6 +72,7 @@ export interface OperationalStandbyState {
     surface_pressure: number | null;
   };
   dataValidTime?: string | null;
+  lastSystem?: { id: string; name: string; lastSeen: string } | null;
   lastChecked: string;
   sources: string[];
   message: string;

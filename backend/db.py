@@ -99,6 +99,21 @@ def storm_ids_since(time_iso):
     return [dict(r) for r in rows]
 
 
+def rename_storm(old_id, new_id):
+    """Move every fix and forecast of old_id to new_id (used when two feeds named the same storm differently)."""
+    with connect() as con:
+        for table in ("storm_fixes", "forecasts"):
+            con.execute(f"UPDATE OR IGNORE {table} SET storm_id=? WHERE storm_id=?", (new_id, old_id))
+            con.execute(f"DELETE FROM {table} WHERE storm_id=?", (old_id,))   # rows that already existed under new_id
+
+
+def last_storm():
+    """Most recent storm in the database (id, name, time of its last position), or None."""
+    with connect() as con:
+        r = con.execute("SELECT storm_id, name, time FROM storm_fixes ORDER BY time DESC, id DESC LIMIT 1").fetchone()
+    return dict(r) if r else None
+
+
 def recent_fixes(limit=50):
     with connect() as con:
         rows = con.execute("SELECT * FROM storm_fixes ORDER BY time DESC, id DESC LIMIT ?", (limit,)).fetchall()

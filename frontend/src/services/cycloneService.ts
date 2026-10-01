@@ -28,6 +28,7 @@ export async function fetchActiveCycloneData(): Promise<ActiveCycloneResponse> {
             monitoringRegion: json.monitoringRegion || 'North Indian Ocean (Bay of Bengal & Arabian Sea)',
             environmentalBaseline: json.environmentalBaseline || EMPTY_BASELINE,
             dataValidTime: json.dataValidTime ?? null,
+            lastSystem: json.lastSystem ?? null,
             lastChecked: json.lastChecked || new Date().toISOString(),
             sources: json.sources || ['NOAA_GFS', 'IBTRACS_ACTIVE', 'GDACS'],
             message: json.message || 'Operational Standby: No active tropical cyclone detected.'
