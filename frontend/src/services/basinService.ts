@@ -31,6 +31,7 @@ export interface BasinAssessment {
   summary: string;
   zones: BasinZone[];
   cells?: OccurrenceCell[];
+  zoneMethod?: string | null; // how the zones were chosen (from IBTrACS), when available
 }
 
 const FALLBACK: BasinAssessment = {

@@ -77,6 +77,29 @@ BASIN_ZONES = [   # monitoring sectors shown on the Basin Watch page (id, name, 
     ("nw-arabian", "NW Arabian Sea & Oman Coast", "Arabian Sea", 22.5, 63.0),
 ]
 BASIN_ZONE_RADIUS_KM = 350
+BASIN_ZONES_INFO = None   # set when the zones come from IBTrACS (scripts/derive_basin_zones_colab.py)
+
+
+def _load_basin_zones():
+    """Use data-derived zones from artifacts/models/basin_zones.json when present, else the list above."""
+    global BASIN_ZONES, BASIN_ZONE_RADIUS_KM, BASIN_ZONES_INFO
+    path = ARTIFACTS_DIR / "models" / "basin_zones.json"
+    if not path.exists():
+        return
+    try:
+        import json
+        d = json.loads(path.read_text())
+        zones = [(z["id"], z["name"], z["basin"], float(z["lat"]), float(z["lon"])) for z in d["zones"]]
+        if zones:
+            BASIN_ZONES = zones
+            BASIN_ZONE_RADIUS_KM = float(d.get("radiusKm", BASIN_ZONE_RADIUS_KM))
+            BASIN_ZONES_INFO = {k: d.get(k) for k in ("method", "years", "storms", "positions",
+                                                      "positionCoverage", "genesisCoverage", "radiusKm")}
+    except (OSError, ValueError, KeyError, TypeError) as e:
+        print(f"basin_zones.json ignored ({e}); using the built-in zones")
+
+
+_load_basin_zones()
 
 for d in (DATA_DIR, GFS_DIR):
     d.mkdir(parents=True, exist_ok=True)

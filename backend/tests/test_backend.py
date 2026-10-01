@@ -229,7 +229,7 @@ def test_end_to_end():
     assert d0["warningLevel"] in ("RED", "ORANGE", "YELLOW", "GREEN")
 
     basin = c.get("/api/basin/risk").get_json()["data"]
-    assert basin["status"] == "LIVE" and len(basin["zones"]) == 7
+    assert basin["status"] == "LIVE" and len(basin["zones"]) == len(CFG.BASIN_ZONES)
     assert max(z["probability"] or 0 for z in basin["zones"]) > 0
     assert c.get("/api/districts/coastal").get_json()["total"] > 10
     assert c.get("/api/sql/records?limit=3").get_json()["total_count"] == 5
