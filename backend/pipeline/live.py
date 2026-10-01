@@ -55,6 +55,8 @@ def track_quality(fx):
 
 def _storm_row(fx, feats, statics, F, t0):
     """Training-identical storm row (history + ERA5-style environment features) at the latest usable time."""
+    if pd.to_numeric(fx["wind"], errors="coerce").isna().all():
+        return None, "no wind speed reported for this storm yet", None
     fx, note = _align_to_gfs(fx, F["time"], t0)
     if len(fx) == 1:                                   # one fix on a GFS time: duplicate it 1 h earlier
         extra = fx.iloc[[0]].copy()
@@ -106,27 +108,35 @@ def run_cycle(store, download=True, now=None):
 
         rng = np.random.default_rng(C.RANDOM_SEED)
         for sid in ids:
-            fx = storms.fixes_frame(sid)
-            quality = track_quality(fx)
-            X, why, note = _storm_row(fx, feats, statics, F, t0)
-            if X is None:
-                msgs.append(f"{sid}: skipped ({why})")
-                continue
-            r = X.iloc[0]
-            observed = [{"timestamp": FC._iso(t), "lat": FC._f(a, 3), "lon": FC._f(b, 3), "windSpeed": FC._f(w, 1),
-                         "pressure": FC._f(p, 1)} for t, a, b, w, p in
-                        zip(fx["ISO_TIME"], fx["LAT"], fx["LON"], fx["wind"], fx["pres"])]
-            meta = dict(storm_id=sid, name=fx["NAME"].iloc[-1] or sid, time=r["time"], lat=r["lat"], lon=r["lon"],
-                        wind=r["wind"], pres=r["pres"], basin_bob=r.get("basin_bob", 1))
-            payload = FC.build_storm_payload(store, X, meta, observed, "live", rng)
-            payload["dataTime"] = FC._iso(t0)
-            sources = sorted({str(x) for x in db_sources(sid)})
-            payload["inputs"] = dict(quality, gfsValidTime=FC._iso(t0), sources=sources, note=note)
-            db.save_forecast(sid, payload["issuedAt"], "live", payload)
-            msgs.append(f"{sid}: forecast issued {payload['issuedAt']}")
+            try:
+                msgs.append(_forecast_storm(store, sid, feats, statics, F, t0, rng))
+            except Exception as e:   # one bad storm report must never stop the others or fail the cycle
+                log.exception("forecast for %s failed", sid)
+                msgs.append(f"{sid}: skipped (error: {e})")
         db.log_end(run_id, "ok", " | ".join(msgs))
         return {"status": "ok", "messages": msgs}
     except Exception as e:
         log.error("live cycle failed: %s", e)
         db.log_end(run_id, "error", " | ".join(msgs + [f"{e}", traceback.format_exc(limit=3)]))
         return {"status": "error", "messages": msgs + [str(e)]}
+
+
+def _forecast_storm(store, sid, feats, statics, F, t0, rng):
+    """Forecast one storm and store it; returns a log message."""
+    fx = storms.fixes_frame(sid)
+    quality = track_quality(fx)
+    X, why, note = _storm_row(fx, feats, statics, F, t0)
+    if X is None:
+        return f"{sid}: skipped ({why})"
+    r = X.iloc[0]
+    observed = [{"timestamp": FC._iso(t), "lat": FC._f(a, 3), "lon": FC._f(b, 3), "windSpeed": FC._f(w, 1),
+                 "pressure": FC._f(p, 1)} for t, a, b, w, p in
+                zip(fx["ISO_TIME"], fx["LAT"], fx["LON"], fx["wind"], fx["pres"])]
+    meta = dict(storm_id=sid, name=fx["NAME"].iloc[-1] or sid, time=r["time"], lat=r["lat"], lon=r["lon"],
+                wind=r["wind"], pres=r["pres"], basin_bob=r.get("basin_bob", 1))
+    payload = FC.build_storm_payload(store, X, meta, observed, "live", rng)
+    payload["dataTime"] = FC._iso(t0)
+    sources = sorted({str(x) for x in db_sources(sid)})
+    payload["inputs"] = dict(quality, gfsValidTime=FC._iso(t0), sources=sources, note=note)
+    db.save_forecast(sid, payload["issuedAt"], "live", payload)
+    return f"{sid}: forecast issued {payload['issuedAt']}"
