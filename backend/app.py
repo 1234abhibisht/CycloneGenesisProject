@@ -309,10 +309,18 @@ def _zone_method():
     if not i:
         return None
     y = i.get("years") or ["?", "?"]
-    return (f"Zones derived from IBTrACS {y[0]}-{y[1]}: {len(CFG.BASIN_ZONES)} circles of "
-            f"{round(i.get('radiusKm') or CFG.BASIN_ZONE_RADIUS_KM)} km cover "
-            f"{round(100 * (i.get('positionCoverage') or 0))}% of all depression-or-stronger positions at sea and "
-            f"{round(100 * (i.get('genesisCoverage') or 0))}% of formation points ({i.get('storms')} storms).")
+    added = i.get("added") or []
+    n_data = len(CFG.BASIN_ZONES) - len(added)
+    text = f"Zones: {n_data} chosen from IBTrACS {y[0]}-{y[1]} storm records"
+    if added:
+        text += f" plus {len(added)} added for active coastlines ({', '.join(added)})"
+    text += "."
+    if i.get("cellAssignment") == "nearest":
+        text += " Every sea cell belongs to its nearest zone, so risk anywhere in the basin raises a zone card."
+    text += (f" Within {round(i.get('radiusKm') or CFG.BASIN_ZONE_RADIUS_KM)} km of their centres the zones hold "
+             f"{round(100 * (i.get('positionCoverage') or 0))}% of depression-or-stronger positions at sea and "
+             f"{round(100 * (i.get('genesisCoverage') or 0))}% of formation points ({i.get('storms')} storms).")
+    return text
 
 
 @app.route("/api/basin/risk")

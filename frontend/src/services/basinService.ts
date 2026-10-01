@@ -22,6 +22,7 @@ export interface OccurrenceCell {
   pAny: number; // any depression or stronger within 200 km in 24 h
   pCsPlus: number; // cyclonic storm or stronger
   warning: boolean; // pCsPlus above the calibrated warning threshold
+  zone?: string; // id of the zone this cell belongs to (its nearest zone)
 }
 
 export interface BasinAssessment {
@@ -41,10 +42,12 @@ const FALLBACK: BasinAssessment = {
   summary: 'The backend could not be reached, so no probabilities are shown. Start it with `python app.py`.',
   zones: [   // same zones as backend/artifacts/models/basin_zones.json
     ['northwest-bay-odisha-coast', 'Northwest Bay & Odisha Coast', 'Bay of Bengal', 18.5, 88.5],
+    ['northeast-bay-myanmar-coast', 'Northeast Bay & Myanmar Coast', 'Bay of Bengal', 18.5, 92.5],
     ['west-central-bay-andhra-coast', 'West-central Bay & Andhra Coast', 'Bay of Bengal', 16.0, 82.0],
     ['central-bay-of-bengal', 'Central Bay of Bengal', 'Bay of Bengal', 13.0, 84.5],
     ['southwest-bay-of-bengal', 'Southwest Bay of Bengal', 'Bay of Bengal', 12.5, 80.5],
     ['southeast-bay-of-bengal', 'Southeast Bay of Bengal', 'Bay of Bengal', 12.0, 90.5],
+    ['andaman-sea', 'Andaman Sea', 'Bay of Bengal', 12.0, 96.0],
     ['south-bay-of-bengal', 'South Bay of Bengal', 'Bay of Bengal', 8.0, 85.0],
     ['ne-arabian-sea-gujarat-coast', 'NE Arabian Sea & Gujarat Coast', 'Arabian Sea', 22.0, 65.0],
     ['east-central-arabian-sea', 'East-central Arabian Sea', 'Arabian Sea', 18.0, 67.0],

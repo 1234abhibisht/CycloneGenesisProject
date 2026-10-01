@@ -43,6 +43,12 @@ RADIUS_KM = 400            # the backend summarises each zone over this radius
 TARGET_COVERAGE = 0.95
 MAX_ZONES = 12
 MIN_SEPARATION_KM = 400
+# Coastlines with known storm activity that the greedy step leaves for later; added on top so
+# that no stretch of coast is summarised by a far-away card. (name, basin, lat, lon)
+EXTRA_ZONES = [
+    ("Andaman Sea", "Bay of Bengal", 12.0, 96.0),
+    ("Northeast Bay & Myanmar Coast", "Bay of Bengal", 18.5, 92.5),
+]
 
 # Land-sea masks of the model grid (0.25 deg, 5-35N x 55-100E, 121 x 181, from backend/artifacts/data/lsm.npy),
 # bit-packed so this script needs no other file: SEA = ocean cells, MODEL = cells the occurrence model covers.
@@ -143,9 +149,9 @@ def choose_zones(lat, lon):
     return cand[chosen], covers[chosen]
 
 
-def name_zones(centres):
+def name_zones(centres, exclude=()):
     """Give each zone a different standard name, minimising the total distance (optimal assignment)."""
-    names = [n for n in NAMES if n[1] != "Land"]
+    names = [n for n in NAMES if n[1] != "Land" and n[0] not in exclude]
     cost = np.array([[haversine(lat, lon, n[2], n[3]) for n in names] for lat, lon in centres])
     try:
         from scipy.optimize import linear_sum_assignment
@@ -175,32 +181,50 @@ def main():
 
     at_sea = on_mask(SEA, lat, lon)
     lat, lon = lat[at_sea], lon[at_sea]                 # zones are judged on positions over the sea
-    centres, covers = choose_zones(lat, lon)
-    names = name_zones(centres)
+    centres, _ = choose_zones(lat, lon)
+    names = name_zones(centres, exclude={e[0] for e in EXTRA_ZONES})
+    entries = [(float(c[0]), float(c[1]), n[0], n[1], False) for c, n in zip(centres, names)]
+    for name, basin, elat, elon in EXTRA_ZONES:
+        if all(haversine(elat, elon, e[0], e[1]) >= MIN_SEPARATION_KM * 0.75 for e in entries):
+            entries.append((elat, elon, name, basin, True))
+    C = np.array([[e[0], e[1]] for e in entries])
+    covers = haversine(C[:, :1], C[:, 1:2], lat[None, :], lon[None, :]) <= RADIUS_KM
     zones = []
-    for (clat, clon), cov, (name, basin, _, _) in zip(centres, covers, names):
+    for (clat, clon, name, basin, added), cov in zip(entries, covers):
         g_in = haversine(clat, clon, glat, glon) <= RADIUS_KM
-        zones.append({"id": slug(name), "name": name, "basin": basin, "lat": float(clat), "lon": float(clon),
-                      "positionShare": round(float(cov.mean()), 3), "genesisCount": int(g_in.sum())})
+        zones.append({"id": slug(name), "name": name, "basin": basin, "lat": clat, "lon": clon,
+                      "positionShare": round(float(cov.mean()), 3), "genesisCount": int(g_in.sum()),
+                      "addedForCoast": added})
     # Bay of Bengal first, then Arabian Sea; north to south
     order = {"Bay of Bengal": 0, "Arabian Sea": 1}
     zones.sort(key=lambda z: (order.get(z["basin"], 3), -z["lat"]))
 
     pos_cov = float(np.any(covers, axis=0).mean())
-    gd = haversine(centres[:, :1], centres[:, 1:2], glat[None, :], glon[None, :])
+    gd = haversine(C[:, :1], C[:, 1:2], glat[None, :], glon[None, :])
     gen_cov = float((gd <= RADIUS_KM).any(axis=0).mean())
+    # every model cell is assigned to its nearest zone: how far is a cell from its zone centre?
+    gl, gn = np.meshgrid(np.arange(5, 35.01, 0.5), np.arange(55, 100.01, 0.5), indexing="ij")
+    keep = on_mask(MODEL, gl.ravel(), gn.ravel())
+    cd = haversine(C[:, :1], C[:, 1:2], gl.ravel()[keep][None, :], gn.ravel()[keep][None, :]).min(axis=0)
     out = {
-        "method": (f"Greedy coverage of IBTrACS North Indian Ocean depression-or-stronger positions "
-                   f"{FIRST_YEAR}-{LAST_YEAR} at sea (6-hourly) with {RADIUS_KM} km circles"),
+        "method": (f"{len(centres)} zones by greedy coverage of IBTrACS North Indian Ocean depression-or-stronger "
+                   f"positions {FIRST_YEAR}-{LAST_YEAR} at sea (6-hourly, {RADIUS_KM} km circles), plus "
+                   f"{len(entries) - len(centres)} added for active coastlines; every model cell belongs to its "
+                   f"nearest zone"),
         "source": SRC.name, "years": [FIRST_YEAR, LAST_YEAR], "radiusKm": RADIUS_KM,
         "storms": int(len(gen)), "positions": int(len(lat)),
         "positionCoverage": round(pos_cov, 3), "genesisCoverage": round(gen_cov, 3),
+        "cellAssignment": "nearest", "cells": int(keep.sum()),
+        "cellDistanceKm": {"median": round(float(np.median(cd))), "p95": round(float(np.percentile(cd, 95))),
+                           "max": round(float(cd.max()))},
         "zones": zones,
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, indent=2))
     print(f"{len(gen)} storms, {len(lat)} positions at sea -> {len(zones)} zones")
-    print(f"zones cover {100 * pos_cov:.1f}% of positions at sea and {100 * gen_cov:.1f}% of genesis points")
+    print(f"zones cover {100 * pos_cov:.1f}% of positions at sea and {100 * gen_cov:.1f}% of genesis points "
+          f"within {RADIUS_KM} km; every one of {int(keep.sum())} model cells is assigned to its nearest zone "
+          f"(median {np.median(cd):.0f} km, 95% within {np.percentile(cd, 95):.0f} km of the zone centre)")
     for z in zones:
         print(f"  {z['name']:<42} {z['lat']:5.1f}N {z['lon']:5.1f}E  positions {100 * z['positionShare']:4.1f}%  "
               f"genesis {z['genesisCount']}")
