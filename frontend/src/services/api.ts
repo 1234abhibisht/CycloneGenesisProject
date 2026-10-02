@@ -35,6 +35,7 @@ export interface BackendStatus {
   system: string;
   version: string;
   operational_mode: 'live' | 'replay';
+  admin_protected?: boolean; // server requires the team password for actions that change data
   timestamp: string;
   sqlite_database: {
     status: string;
@@ -89,29 +90,57 @@ export async function fetchStormFixes(limit = 15): Promise<StormFixRecord[]> {
   return [];
 }
 
-/** Start one live cycle now (GFS download of missing files + storms + forecasts). */
-export async function triggerLiveRefresh(download = true): Promise<boolean> {
+// ---- actions that change data: protected by the team password (ADMIN_TOKEN on the server)
+const ADMIN_KEY = 'cyclone-admin-password';
+
+/** Team password for this browser tab only (forgotten when the tab closes). */
+export function getAdminPassword(): string {
+  try { return window.sessionStorage.getItem(ADMIN_KEY) ?? ''; } catch { return ''; }
+}
+export function setAdminPassword(value: string): void {
   try {
-    const res = await fetch(`${API_BASE_URL}/admin/refresh`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ download }),
+    if (value) window.sessionStorage.setItem(ADMIN_KEY, value); else window.sessionStorage.removeItem(ADMIN_KEY);
+  } catch { /* storage unavailable: the password is simply not remembered */ }
+}
+
+export interface AdminResult { ok: boolean; error?: string; }
+
+async function adminPost(path: string, body: unknown): Promise<AdminResult> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Token': getAdminPassword() },
+      body: JSON.stringify(body),
     });
-    return res.ok;
+    if (res.ok) return { ok: true };
+    let error = `Request failed (${res.status})`;
+    try { error = (await res.json()).error || error; } catch { /* keep the status text */ }
+    if (res.status === 401) error = 'Wrong or missing team password.';
+    return { ok: false, error };
   } catch {
-    return false;
+    return { ok: false, error: 'Could not reach the backend.' };
   }
 }
 
+/** Start one live cycle now (GFS download of missing files + storms + forecasts). */
+export function triggerLiveRefresh(download = true): Promise<AdminResult> {
+  return adminPost('refresh', { download });
+}
+
+/** Check the team password (also succeeds when the server has no password set). */
+export function verifyAdminPassword(): Promise<AdminResult> {
+  return adminPost('verify', {});
+}
+
 /** Add a storm position by hand (e.g. from an IMD bulletin). Wind in knots (3-min), pressure in hPa. */
-export async function addManualFix(fix: { stormId: string; name: string; time: string; lat: number; lon: number;
-  wind?: number | null; pres?: number | null }): Promise<boolean> {
-  try {
-    const res = await fetch(`${API_BASE_URL}/admin/fixes`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify([fix]),
-    });
-    return res.ok;
-  } catch {
-    return false;
-  }
+export function addManualFix(fix: { stormId: string; name: string; time: string; lat: number; lon: number;
+  wind?: number | null; pres?: number | null }): Promise<AdminResult> {
+  return adminPost('fixes', [fix]);
+}
+
+/** Delete one hand-entered position (positions from IBTrACS / GDACS cannot be deleted). */
+export function deleteManualFix(id: number): Promise<AdminResult> {
+  return adminPost('fixes/delete', { id });
 }
 
 export interface SourceStatus {

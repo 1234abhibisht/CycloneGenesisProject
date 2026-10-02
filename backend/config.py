@@ -45,6 +45,13 @@ MODEL_VERSION = "vectorminds-2026.1"
 
 # ---------------------------------------------------------------- live pipeline
 AUTO_PIPELINE = _bool("AUTO_PIPELINE", True)          # run GFS download + forecasts in the background
+# Team password for actions that change data (add/delete storm positions, run a cycle, reload models).
+# Set it in the host's environment (Render: Environment tab). Empty = those actions are open to anyone.
+ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN", "").strip()
+# Manual storm positions must fall inside this box (North Indian Ocean) and this time window
+MANUAL_FIX_BOX = dict(lat_min=0.0, lat_max=35.0, lon_min=40.0, lon_max=100.0)
+MANUAL_FIX_MAX_AGE_DAYS = 7
+MANUAL_FIX_MAX_FUTURE_HOURS = 3
 REFRESH_MINUTES = int(os.environ.get("REFRESH_MINUTES", "60"))
 GFS_BACKFILL_HOURS = int(os.environ.get("GFS_BACKFILL_HOURS", "48"))   # past data kept on disk
 GFS_KEEP_HOURS = int(os.environ.get("GFS_KEEP_HOURS", "54"))
