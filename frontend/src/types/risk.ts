@@ -78,6 +78,11 @@ export interface StrikeVerification {
   orangeOrRedForecasts: number;
   orangeOrRedCorrect: number;
   bins: StrikeVerificationBin[];
+  thresholds?: { threshold: number; label: string; tp: number; fp: number; fn: number; tn: number;
+    precision: number | null; recall: number | null; f1: number | null; csi: number | null; accuracy: number }[];
+  rocAuc?: number | null;
+  averagePrecision?: number | null;
+  latency?: { modelsMsMedian?: number; strikeMsMedian?: number; mcTracks?: number };
   windowHours: number;
   radiusKm: number;
   truth: string;
