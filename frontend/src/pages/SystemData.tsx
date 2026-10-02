@@ -5,6 +5,7 @@ import {
   getAdminPassword, setAdminPassword, verifyAdminPassword,
   type BackendStatus, type SourceStatus, type StormFixRecord,
 } from '../services/api';
+import { RevealPasswordInput } from '../components/ui/RevealPasswordInput';
 
 const card = 'bg-[#FFFFFF] border border-[#CFE5E9]/60 rounded-xl p-4 shadow-sm';
 const ok = (b: boolean | undefined) => (b ? 'text-[#1F7A4D]' : 'text-[#A15C07]');
@@ -17,6 +18,8 @@ export const SystemData: React.FC = () => {
   const [message, setMessage] = useState('');
   const [form, setForm] = useState({ stormId: '', name: '', time: '', lat: '', lon: '', wind: '', pres: '' });
   const [password, setPassword] = useState(getAdminPassword());
+  // result of the last password check, shown small beside the Verify button
+  const [pwState, setPwState] = useState<'idle' | 'ok' | 'bad' | 'open'>('idle');
 
   const load = useCallback(async () => {
     const [s, f] = await Promise.all([fetchBackendStatus(), fetchStormFixes(15)]);
@@ -28,14 +31,24 @@ export const SystemData: React.FC = () => {
     fetchSourceStatus().then(setSources);
   }, [load]);
 
-  const savePassword = async () => {
+  // wrong password: mark the box red and empty it, so it can be typed again straight away
+  const passwordRejected = () => {
+    setAdminPassword('');
+    setPassword('');
+    setPwState('bad');
+  };
+
+  const verifyPassword = async () => {
     setAdminPassword(password.trim());
     const r = await verifyAdminPassword();
-    setMessage(r.ok ? 'Team password accepted for this browser tab.' : r.error || 'Password not accepted.');
+    if (r.ok) setPwState(status?.admin_protected ? 'ok' : 'open');
+    else if (r.error?.toLowerCase().includes('password')) passwordRejected();
+    else setMessage(r.error || 'Could not reach the backend.');
   };
 
   const refreshLive = async () => {
     const r = await triggerLiveRefresh();
+    if (!r.ok && r.error?.toLowerCase().includes('password')) { passwordRejected(); return; }
     setMessage(r.ok ? 'Live cycle started: missing GFS files are downloaded, then forecasts are recomputed. This can take several minutes on the first run.' : r.error || 'Could not reach the backend.');
     if (r.ok) window.setTimeout(() => void load(), 4000);
   };
@@ -43,6 +56,7 @@ export const SystemData: React.FC = () => {
   const removeFix = async (id: number, label: string) => {
     if (!window.confirm(`Delete the hand-entered position "${label}"?`)) return;
     const r = await deleteManualFix(id);
+    if (!r.ok && r.error?.toLowerCase().includes('password')) { passwordRejected(); return; }
     setMessage(r.ok ? `Deleted "${label}".` : r.error || 'Could not delete.');
     if (r.ok) void load();
   };
@@ -54,6 +68,7 @@ export const SystemData: React.FC = () => {
       lat: Number(form.lat), lon: Number(form.lon),
       wind: form.wind ? Number(form.wind) : null, pres: form.pres ? Number(form.pres) : null,
     });
+    if (!r.ok && r.error?.toLowerCase().includes('password')) { passwordRejected(); return; }
     setMessage(r.ok ? 'Position saved. Press "Run live cycle now" to recompute the forecast.' : `Position not saved: ${r.error}`);
     if (r.ok) void load();
   };
@@ -70,13 +85,6 @@ export const SystemData: React.FC = () => {
           <p className="text-xs text-[#4A6670] mt-0.5">Everything on this page is read from the running backend.</p>
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-        <label className="flex items-center gap-2 text-[11px] text-[#4A6670]">
-          <span>{status?.admin_protected ? 'Team password' : 'Team password (not set on server)'}</span>
-          <input type="password" autoComplete="current-password" aria-label="Team password" value={password}
-            onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') void savePassword(); }}
-            onBlur={() => setAdminPassword(password.trim())}
-            className="w-36 bg-[#F2FAFB] border border-[#CFE5E9] rounded px-2 py-1.5 text-xs font-mono text-[#0B2A33] focus:outline-none focus:border-[#0B7F8E]" />
-        </label>
         <button onClick={refreshLive} disabled={!status}
           className="inline-flex items-center gap-2 rounded-lg border border-[#0B7F8E]/40 bg-[#E1F4F6] px-3 py-2 text-xs font-semibold text-[#0B7F8E] hover:bg-[#0B7F8E]/15 disabled:opacity-50">
           <RefreshCw className={`w-4 h-4 ${live?.pipeline_running ? 'animate-spin' : ''}`} /> Run live cycle now
@@ -161,6 +169,35 @@ export const SystemData: React.FC = () => {
         </div>
       </div>
 
+      <div className={`${card} p-5`}>
+        <h3 className="text-xs font-bold uppercase tracking-wide mb-1 flex items-center gap-2"><Database className="w-4 h-4 text-[#0B7F8E]" /> Storm positions and where the data is kept</h3>
+        <p className="text-xs text-[#4A6670] leading-relaxed">
+          Storm positions arrive automatically from IBTrACS ACTIVE and GDACS every hour. If IMD is already issuing bulletins for a
+          system that these feeds do not list yet (often an early depression), a team member can add its position by hand from the
+          IMD RSMC New Delhi bulletin with the form below (team password required). The next live cycle then forecasts it.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3 text-xs text-[#4A6670]">
+          <div className="rounded-lg border border-[#CFE5E9]/70 bg-[#F2FAFB] p-3">
+            <div className="font-semibold text-[#0B2A33] mb-1">SQLite database (cyclone.db), kept permanently</div>
+            <ul className="list-disc pl-4 space-y-0.5">
+              <li>Storm positions from GDACS, IBTrACS and manual entries (the table below)</li>
+              <li>Every forecast issued: track and wind at +6/12/18/24 h, rapid intensification, peak, district strike chances</li>
+              <li>Every Basin Watch formation map (saved each hourly cycle)</li>
+              <li>The pipeline run log shown above</li>
+            </ul>
+          </div>
+          <div className="rounded-lg border border-[#CFE5E9]/70 bg-[#F2FAFB] p-3">
+            <div className="font-semibold text-[#0B2A33] mb-1">Render persistent disk (2 GB), survives restarts and redeploys</div>
+            <ul className="list-disc pl-4 space-y-0.5">
+              <li>The SQLite database file above</li>
+              <li>NOAA GFS weather files for the basin: the latest ~48 h, older files deleted automatically</li>
+              <li>The latest IBTrACS active-storms file</li>
+              <li>The saved test-storm strike verification result</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className={`lg:col-span-2 ${card}`}>
           <h3 className="text-xs font-bold uppercase tracking-wide mb-2">Latest storm positions in SQLite</h3>
@@ -190,13 +227,30 @@ export const SystemData: React.FC = () => {
 
         <form onSubmit={submitFix} className={`${card} space-y-2`}>
           <h3 className="text-xs font-bold uppercase tracking-wide mb-1 flex items-center gap-2"><PlusCircle className="w-4 h-4 text-[#0B7F8E]" /> Add a storm position</h3>
-          <p className="text-[11px] text-[#4A6670]">e.g. from an IMD bulletin. Wind in knots (3-min average). Two or more positions give a better forecast. Must be inside the North Indian Ocean (0-35°N, 40-100°E), within the last 7 days, with a wind speed. Needs the team password (top of the page).</p>
+          <p className="text-[11px] text-[#4A6670]">e.g. from an IMD bulletin. Wind in knots (3-min average). Two or more positions give a better forecast. Must be inside the North Indian Ocean (0-35°N, 40-100°E), within the last 7 days, with a wind speed. Needs the team password (below).</p>
           {([['stormId', 'Storm ID (e.g. BOB01-2026)'], ['name', 'Name'], ['time', 'Time UTC (2026-10-01T06:00Z)'], ['lat', 'Latitude °N'],
             ['lon', 'Longitude °E'], ['wind', 'Wind kt'], ['pres', 'Pressure hPa']] as const).map(([k, label]) => (
             <input key={k} required={['stormId', 'time', 'lat', 'lon', 'wind'].includes(k)} placeholder={label} value={form[k]}
               onChange={(e) => setForm({ ...form, [k]: e.target.value })}
               className="w-full bg-[#F2FAFB] border border-[#CFE5E9] rounded px-2 py-1.5 text-xs font-mono text-[#0B2A33] focus:outline-none focus:border-[#0B7F8E]" />
           ))}
+          <div className="flex items-center gap-2">
+            <RevealPasswordInput
+              ariaLabel="Team password"
+              placeholder={status?.admin_protected === false ? 'Team password (not set on server)' : 'Team password'}
+              value={password}
+              invalid={pwState === 'bad'}
+              onChange={(v) => { setPassword(v); setAdminPassword(v.trim()); if (pwState !== 'idle') setPwState('idle'); }}
+              onEnter={() => void verifyPassword()}
+              className={`flex-1 min-w-0 bg-[#F2FAFB] border rounded px-2 py-1.5 text-xs font-mono text-[#0B2A33] focus:outline-none ${pwState === 'bad' ? 'border-[#B8322B] ring-1 ring-[#B8322B]/40 placeholder:text-[#B8322B]/70' : 'border-[#CFE5E9] focus:border-[#0B7F8E]'}`} />
+            <button type="button" onClick={() => void verifyPassword()} disabled={!status || !password}
+              className="shrink-0 rounded-lg border border-[#0B7F8E]/40 bg-[#E1F4F6] px-3 py-1.5 text-xs font-semibold text-[#0B7F8E] disabled:opacity-50">Verify password</button>
+          </div>
+          <p className="text-[11px] min-h-[16px]" role="status" aria-live="polite">
+            {pwState === 'bad' && <span className="text-[#B8322B]">Wrong password. Type it again.</span>}
+            {pwState === 'ok' && <span className="text-[#1F7A4D]">Password verified for this browser tab.</span>}
+            {pwState === 'open' && <span className="text-[#A15C07]">No password is set on the server: actions are open.</span>}
+          </p>
           <button type="submit" disabled={!status} className="w-full rounded-lg border border-[#0B7F8E]/40 bg-[#E1F4F6] px-3 py-2 text-xs font-semibold text-[#0B7F8E] disabled:opacity-50">Save position</button>
         </form>
       </div>
