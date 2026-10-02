@@ -42,7 +42,7 @@ _STATE = {"running": False, "last_result": None}
 @app.after_request
 def _cors(resp):
     resp.headers["Access-Control-Allow-Origin"] = "*"
-    resp.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
+    resp.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization,X-Admin-Token"
     resp.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
     return resp
 
@@ -157,6 +157,7 @@ def system_status():
         "status": "OPERATIONAL" if STORE.any_ready else "MODELS_NOT_INSTALLED",
         "system": "Cyclone early-warning platform (VectorMinds, SIH)", "version": CFG.MODEL_VERSION,
         "operational_mode": mode(), "timestamp": db.now_iso(),
+        "admin_protected": bool(CFG.ADMIN_TOKEN),
         "sqlite_database": {"status": "connected", "total_records_stored": db.count_fixes(),
                             "forecasts_stored": db.count_forecasts(), "persistence_enabled": True},
         "ml_inference_engine": {"models_loaded": STORE.any_ready,
@@ -412,6 +413,56 @@ def sql_records():
 
 
 # ================================================================ admin
+@app.before_request
+def _admin_guard():
+    """Actions that change data need the team password (X-Admin-Token header) when ADMIN_TOKEN is set."""
+    if request.method == "POST" and request.path.startswith("/api/admin/") and CFG.ADMIN_TOKEN:
+        import hmac
+        given = request.headers.get("X-Admin-Token", "")
+        if not hmac.compare_digest(given.encode(), CFG.ADMIN_TOKEN.encode()):
+            return jsonify({"status": 401, "error": "admin password required (wrong or missing password)"}), 401
+    return None
+
+
+@app.route("/api/admin/verify", methods=["POST"])
+def admin_verify():
+    """Lets the page check a password before using it (the guard above does the checking)."""
+    return jsonify({"status": 200, "ok": True, "protected": bool(CFG.ADMIN_TOKEN)})
+
+
+def _check_manual_fix(i):
+    """Validate one hand-entered position; returns (row, None) or (None, error message)."""
+    box = CFG.MANUAL_FIX_BOX
+    try:
+        sid = str(i.get("stormId") or "").strip()
+        name = str(i.get("name") or sid).strip()
+        if not sid or len(sid) > 40 or len(name) > 40:
+            return None, "storm ID is required (40 characters at most)"
+        t = pd.Timestamp(i["time"])
+        t = t.tz_convert("UTC").tz_localize(None) if t.tzinfo is not None else t
+        lat, lon = float(i["lat"]), float(i["lon"])
+        wind = i.get("wind")
+        wind = None if wind in (None, "") else float(wind)
+        pres = i.get("pres")
+        pres = None if pres in (None, "") else float(pres)
+    except (KeyError, TypeError, ValueError):
+        return None, "time, latitude and longitude must be valid numbers/dates"
+    now = pd.Timestamp.now(tz="UTC").tz_localize(None)
+    if not (box["lat_min"] <= lat <= box["lat_max"] and box["lon_min"] <= lon <= box["lon_max"]):
+        return None, (f"position {lat}N {lon}E is outside the North Indian Ocean "
+                      f"({box['lat_min']:g}-{box['lat_max']:g}N, {box['lon_min']:g}-{box['lon_max']:g}E)")
+    if wind is None or not (10 <= wind <= 200):
+        return None, "wind speed (10-200 kt) is required: the models need it"
+    if pres is not None and not (850 <= pres <= 1020):
+        return None, "pressure must be between 850 and 1020 hPa"
+    if t > now + pd.Timedelta(hours=CFG.MANUAL_FIX_MAX_FUTURE_HOURS):
+        return None, "time is in the future"
+    if t < now - pd.Timedelta(days=CFG.MANUAL_FIX_MAX_AGE_DAYS):
+        return None, f"time is more than {CFG.MANUAL_FIX_MAX_AGE_DAYS} days old"
+    return dict(storm_id=sid, name=name, time=t.strftime("%Y-%m-%dT%H:%M:%SZ"), lat=lat, lon=lon,
+                wind=wind, pres=pres, source="MANUAL"), None
+
+
 def _run_pipeline(download=True):
     if not _RUN_LOCK.acquire(blocking=False):
         return {"status": "busy"}
@@ -437,10 +488,31 @@ def admin_fixes():
     """Add storm positions manually, e.g. from an IMD bulletin: [{stormId, name, time, lat, lon, wind, pres}]"""
     body = request.get_json(silent=True)
     items = body if isinstance(body, list) else (body or {}).get("fixes", [])
-    rows = [dict(storm_id=i["stormId"], name=i.get("name", i["stormId"]),
-                 time=pd.Timestamp(i["time"]).strftime("%Y-%m-%dT%H:%M:%SZ"), lat=i["lat"], lon=i["lon"],
-                 wind=i.get("wind"), pres=i.get("pres"), source="MANUAL") for i in items]
+    if not items:
+        return jsonify({"status": 400, "error": "no positions given"}), 400
+    rows, errors = [], []
+    for k, i in enumerate(items):
+        row, err = _check_manual_fix(i if isinstance(i, dict) else {})
+        if err:
+            errors.append(f"position {k + 1}: {err}")
+        else:
+            rows.append(row)
+    if errors:                                   # all or nothing: nothing is saved if any position is wrong
+        return jsonify({"status": 400, "error": "; ".join(errors)}), 400
     return jsonify({"status": 200, "inserted": db.upsert_fixes(rows)})
+
+
+@app.route("/api/admin/fixes/delete", methods=["POST"])
+def admin_delete_fix():
+    """Delete one hand-entered (MANUAL) position by its id."""
+    body = request.get_json(silent=True) or {}
+    try:
+        n = db.delete_manual_fix(int(body.get("id")))
+    except (TypeError, ValueError):
+        return jsonify({"status": 400, "error": "id required"}), 400
+    if not n:
+        return jsonify({"status": 404, "error": "no hand-entered position with that id"}), 404
+    return jsonify({"status": 200, "deleted": n})
 
 
 @app.route("/api/admin/reload-models", methods=["POST"])

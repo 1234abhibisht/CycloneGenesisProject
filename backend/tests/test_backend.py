@@ -275,9 +275,32 @@ def test_end_to_end():
     assert act["status"] == "LIVE" and act["data"][0]["id"] == "TEST01"
     assert c.get("/api/cyclone/2007314N10093/predictions").status_code == 200
 
-    r = c.post("/api/admin/fixes", json=[{"stormId": "M1", "name": "MANUAL", "time": "2026-05-20T12:00Z",
-                                          "lat": 12, "lon": 85, "wind": 35}]).get_json()
-    assert r["inserted"] == 1
+    # manual positions: checked, and protected by the team password when ADMIN_TOKEN is set
+    recent = (pd.Timestamp.now(tz="UTC") - pd.Timedelta(hours=6)).strftime("%Y-%m-%dT%H:00Z")
+    ok_fix = {"stormId": "M1", "name": "MANUAL", "time": recent, "lat": 12, "lon": 85, "wind": 35}
+    r = c.post("/api/admin/fixes", json=[ok_fix]).get_json()
+    assert r["inserted"] == 1, r
+    for bad, why in [({**ok_fix, "lat": 23, "lon": 23}, "outside"), ({**ok_fix, "wind": None}, "wind"),
+                     ({**ok_fix, "time": "2030-01-01T00:00Z"}, "future"), ({**ok_fix, "time": "2026-01-01T00:00Z"}, "old"),
+                     ({**ok_fix, "stormId": ""}, "storm ID")]:
+        rb = c.post("/api/admin/fixes", json=[bad])
+        assert rb.status_code == 400 and why in rb.get_json()["error"], (bad, rb.get_json())
+    CFG.ADMIN_TOKEN = "team-secret"
+    try:
+        assert c.post("/api/admin/fixes", json=[ok_fix]).status_code == 401
+        assert c.post("/api/admin/refresh", json={}, headers={"X-Admin-Token": "wrong"}).status_code == 401
+        assert c.post("/api/admin/verify", headers={"X-Admin-Token": "team-secret"}).get_json()["ok"]
+        assert c.get("/api/system/status").get_json()["admin_protected"] is True
+        mid = next(x["id"] for x in c.get("/api/sql/records?limit=50").get_json()["records"] if x["storm_id"] == "M1")
+        db.upsert_fixes([dict(storm_id="GDACS-5", name="FEED", time=recent, lat=14, lon=88, wind=40, pres=None,
+                              source="GDACS")])
+        feed = next(x["id"] for x in c.get("/api/sql/records?limit=50").get_json()["records"] if x["source"] == "GDACS")
+        assert c.post("/api/admin/fixes/delete", json={"id": mid}).status_code == 401
+        h = {"X-Admin-Token": "team-secret"}
+        assert c.post("/api/admin/fixes/delete", json={"id": feed}, headers=h).status_code == 404   # feeds are kept
+        assert c.post("/api/admin/fixes/delete", json={"id": mid}, headers=h).get_json()["deleted"] == 1
+    finally:
+        CFG.ADMIN_TOKEN = ""
     print("backend end-to-end test passed; temp folder:", TMP)
 
 

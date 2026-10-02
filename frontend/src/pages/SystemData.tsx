@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Server, Database, Cpu, CloudDownload, RefreshCw, Terminal, PlusCircle } from 'lucide-react';
 import {
-  fetchBackendStatus, fetchSourceStatus, fetchStormFixes, triggerLiveRefresh, addManualFix,
+  fetchBackendStatus, fetchSourceStatus, fetchStormFixes, triggerLiveRefresh, addManualFix, deleteManualFix,
+  getAdminPassword, setAdminPassword, verifyAdminPassword,
   type BackendStatus, type SourceStatus, type StormFixRecord,
 } from '../services/api';
 
@@ -15,6 +16,7 @@ export const SystemData: React.FC = () => {
   const [loaded, setLoaded] = useState(false);
   const [message, setMessage] = useState('');
   const [form, setForm] = useState({ stormId: '', name: '', time: '', lat: '', lon: '', wind: '', pres: '' });
+  const [password, setPassword] = useState(getAdminPassword());
 
   const load = useCallback(async () => {
     const [s, f] = await Promise.all([fetchBackendStatus(), fetchStormFixes(15)]);
@@ -26,20 +28,34 @@ export const SystemData: React.FC = () => {
     fetchSourceStatus().then(setSources);
   }, [load]);
 
+  const savePassword = async () => {
+    setAdminPassword(password.trim());
+    const r = await verifyAdminPassword();
+    setMessage(r.ok ? 'Team password accepted for this browser tab.' : r.error || 'Password not accepted.');
+  };
+
   const refreshLive = async () => {
-    setMessage((await triggerLiveRefresh()) ? 'Live cycle started: missing GFS files are downloaded, then forecasts are recomputed. This can take several minutes on the first run.' : 'Could not reach the backend.');
-    window.setTimeout(() => void load(), 4000);
+    const r = await triggerLiveRefresh();
+    setMessage(r.ok ? 'Live cycle started: missing GFS files are downloaded, then forecasts are recomputed. This can take several minutes on the first run.' : r.error || 'Could not reach the backend.');
+    if (r.ok) window.setTimeout(() => void load(), 4000);
+  };
+
+  const removeFix = async (id: number, label: string) => {
+    if (!window.confirm(`Delete the hand-entered position "${label}"?`)) return;
+    const r = await deleteManualFix(id);
+    setMessage(r.ok ? `Deleted "${label}".` : r.error || 'Could not delete.');
+    if (r.ok) void load();
   };
 
   const submitFix = async (e: React.FormEvent) => {
     e.preventDefault();
-    const okay = await addManualFix({
+    const r = await addManualFix({
       stormId: form.stormId.trim(), name: form.name.trim() || form.stormId.trim(), time: form.time,
       lat: Number(form.lat), lon: Number(form.lon),
       wind: form.wind ? Number(form.wind) : null, pres: form.pres ? Number(form.pres) : null,
     });
-    setMessage(okay ? 'Position saved. Press "Run live cycle now" to recompute the forecast.' : 'Position could not be saved.');
-    if (okay) void load();
+    setMessage(r.ok ? 'Position saved. Press "Run live cycle now" to recompute the forecast.' : `Position not saved: ${r.error}`);
+    if (r.ok) void load();
   };
 
   const live = status?.live_data;
@@ -53,10 +69,19 @@ export const SystemData: React.FC = () => {
           <h1 className="text-xl font-bold tracking-tight">System status and data lineage</h1>
           <p className="text-xs text-[#4A6670] mt-0.5">Everything on this page is read from the running backend.</p>
         </div>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+        <label className="flex items-center gap-2 text-[11px] text-[#4A6670]">
+          <span>{status?.admin_protected ? 'Team password' : 'Team password (not set on server)'}</span>
+          <input type="password" autoComplete="current-password" aria-label="Team password" value={password}
+            onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') void savePassword(); }}
+            onBlur={() => setAdminPassword(password.trim())}
+            className="w-36 bg-[#F2FAFB] border border-[#CFE5E9] rounded px-2 py-1.5 text-xs font-mono text-[#0B2A33] focus:outline-none focus:border-[#0B7F8E]" />
+        </label>
         <button onClick={refreshLive} disabled={!status}
           className="inline-flex items-center gap-2 rounded-lg border border-[#0B7F8E]/40 bg-[#E1F4F6] px-3 py-2 text-xs font-semibold text-[#0B7F8E] hover:bg-[#0B7F8E]/15 disabled:opacity-50">
           <RefreshCw className={`w-4 h-4 ${live?.pipeline_running ? 'animate-spin' : ''}`} /> Run live cycle now
         </button>
+        </div>
       </div>
       {message && <div className="rounded-lg border border-[#CFE5E9] bg-[#FFFFFF] px-4 py-3 text-xs text-[#4A6670]" role="status">{message}</div>}
       {loaded && !status && (
@@ -142,7 +167,7 @@ export const SystemData: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left font-mono text-xs">
               <thead className="text-[#4A6670] border-b border-[#CFE5E9]/80">
-                <tr><th className="p-2">Storm</th><th className="p-2">Time (UTC)</th><th className="p-2">Position</th><th className="p-2">Wind</th><th className="p-2">Pressure</th><th className="p-2">Source</th></tr>
+                <tr><th className="p-2">Storm</th><th className="p-2">Time (UTC)</th><th className="p-2">Position</th><th className="p-2">Wind</th><th className="p-2">Pressure</th><th className="p-2">Source</th><th className="p-2"></th></tr>
               </thead>
               <tbody className="divide-y divide-[#CFE5E9]/30">
                 {fixes.map((r) => (
@@ -153,9 +178,11 @@ export const SystemData: React.FC = () => {
                     <td className="p-2">{r.wind_speed != null ? `${r.wind_speed} kt` : '—'}</td>
                     <td className="p-2">{r.pressure != null ? `${r.pressure} hPa` : '—'}</td>
                     <td className="p-2 text-[#4A6670]">{r.source}</td>
+                    <td className="p-2">{r.source === 'MANUAL' && <button type="button" onClick={() => void removeFix(r.id, r.name || r.storm_id)}
+                      className="text-[11px] text-[#B8322B] underline hover:no-underline">Delete</button>}</td>
                   </tr>
                 ))}
-                {!fixes.length && <tr><td colSpan={6} className="p-2 text-[#4A6670]">No storm positions stored (no active North Indian Ocean storm reported by IBTrACS ACTIVE / GDACS).</td></tr>}
+                {!fixes.length && <tr><td colSpan={7} className="p-2 text-[#4A6670]">No storm positions stored (no active North Indian Ocean storm reported by IBTrACS ACTIVE / GDACS).</td></tr>}
               </tbody>
             </table>
           </div>
@@ -163,10 +190,10 @@ export const SystemData: React.FC = () => {
 
         <form onSubmit={submitFix} className={`${card} space-y-2`}>
           <h3 className="text-xs font-bold uppercase tracking-wide mb-1 flex items-center gap-2"><PlusCircle className="w-4 h-4 text-[#0B7F8E]" /> Add a storm position</h3>
-          <p className="text-[11px] text-[#4A6670]">e.g. from an IMD bulletin. Wind in knots (3-min average). Two or more positions give a better forecast.</p>
+          <p className="text-[11px] text-[#4A6670]">e.g. from an IMD bulletin. Wind in knots (3-min average). Two or more positions give a better forecast. Must be inside the North Indian Ocean (0-35°N, 40-100°E), within the last 7 days, with a wind speed. Needs the team password (top of the page).</p>
           {([['stormId', 'Storm ID (e.g. BOB01-2026)'], ['name', 'Name'], ['time', 'Time UTC (2026-10-01T06:00Z)'], ['lat', 'Latitude °N'],
             ['lon', 'Longitude °E'], ['wind', 'Wind kt'], ['pres', 'Pressure hPa']] as const).map(([k, label]) => (
-            <input key={k} required={['stormId', 'time', 'lat', 'lon'].includes(k)} placeholder={label} value={form[k]}
+            <input key={k} required={['stormId', 'time', 'lat', 'lon', 'wind'].includes(k)} placeholder={label} value={form[k]}
               onChange={(e) => setForm({ ...form, [k]: e.target.value })}
               className="w-full bg-[#F2FAFB] border border-[#CFE5E9] rounded px-2 py-1.5 text-xs font-mono text-[#0B2A33] focus:outline-none focus:border-[#0B7F8E]" />
           ))}

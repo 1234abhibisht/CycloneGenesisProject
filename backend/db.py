@@ -107,6 +107,12 @@ def rename_storm(old_id, new_id):
             con.execute(f"DELETE FROM {table} WHERE storm_id=?", (old_id,))   # rows that already existed under new_id
 
 
+def delete_manual_fix(fix_id):
+    """Delete one hand-entered position (feed positions from IBTrACS/GDACS are never deleted). Returns rows deleted."""
+    with connect() as con:
+        return con.execute("DELETE FROM storm_fixes WHERE id=? AND source='MANUAL'", (int(fix_id),)).rowcount
+
+
 def last_storm():
     """Most recent storm in the database (id, name, time of its last position), or None."""
     with connect() as con:
