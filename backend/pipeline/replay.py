@@ -159,7 +159,7 @@ _VERIF_LOCK = threading.Lock()
 
 
 def _verification_key(store):
-    parts = [CFG.MODEL_VERSION, store.main_model, str(CFG.N_MC_TRACKS)]
+    parts = ["v2", CFG.MODEL_VERSION, store.main_model, str(CFG.N_MC_TRACKS)]
     for f in (REPLAY_FILE, CFG.MODELS_DIR / "track_error_bank.npy", CFG.MODELS_DIR / "y_dlat_24.json"):
         parts.append(str(f.stat().st_mtime_ns) if f.exists() else "-")
     return "|".join(parts)
@@ -206,7 +206,32 @@ def compute_strike_verification(store):
         bins.append({"label": label, "forecasts": int(m.sum()), "meanPredicted": None if not m.any() else round(float(p[m].mean()), 3),
                      "hits": int(o[m].sum()), "observedFrequency": None if not m.any() else round(float(o[m].mean()), 3)})
     hit = o == 1
+    thresholds = []
+    for thr, label in ((0.10, "yellow or higher (10%)"), (0.25, "orange or higher (25%)"), (0.50, "red (50%)")):
+        yp = p >= thr
+        tp, fp = int((yp & hit).sum()), int((yp & ~hit).sum())
+        fn, tn = int((~yp & hit).sum()), int((~yp & ~hit).sum())
+        prec = tp / (tp + fp) if tp + fp else None
+        rec = tp / (tp + fn) if tp + fn else None
+        f1 = 2 * prec * rec / (prec + rec) if prec and rec else None
+        thresholds.append({"threshold": thr, "label": label, "tp": tp, "fp": fp, "fn": fn, "tn": tn,
+                           "precision": None if prec is None else round(prec, 3),
+                           "recall": None if rec is None else round(rec, 3),
+                           "f1": None if f1 is None else round(f1, 3),
+                           "csi": round(tp / (tp + fp + fn), 3) if tp + fp + fn else None,
+                           "accuracy": round((tp + tn) / len(p), 4)})
+    roc = ap = None
+    if 0 < hit.sum() < len(hit):
+        from sklearn.metrics import average_precision_score, roc_auc_score
+        roc, ap = round(float(roc_auc_score(o, p)), 3), round(float(average_precision_score(o, p)), 3)
+    timings = [(_CACHE[k].get("timingMs") or {}) for k in list(_CACHE)[:200]]
+    lat = {}
+    if timings:
+        lat = {"modelsMsMedian": round(float(np.median([t.get("models", np.nan) for t in timings])), 1),
+               "strikeMsMedian": round(float(np.median([t.get("strike", np.nan) for t in timings])), 1),
+               "mcTracks": timings[0].get("mcTracks")}
     return {
+        "thresholds": thresholds, "rocAuc": roc, "averagePrecision": ap, "latency": lat,
         "available": True, "storms": len(storms_used), "forecastTimes": cases, "pairs": int(len(p)),
         "hits": int(hit.sum()), "baseRate": round(base, 4),
         "brier": round(brier, 5), "brierClimatology": round(brier_clim, 5),

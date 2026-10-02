@@ -6,6 +6,7 @@ Forecast leads: +6 / +12 / +18 / +24 h only (what the models were trained for).
 No pressure forecast and no storm-surge model: those fields are not produced.
 """
 import re
+import time
 
 import numpy as np
 import pandas as pd
@@ -69,7 +70,9 @@ def build_storm_payload(store, X, meta, observed, mode, rng=None, n_tracks=None)
     lat0, lon0 = float(meta["lat"]), float(meta["lon"])
     w0 = meta.get("wind")
     w0 = float(w0) if w0 is not None and np.isfinite(w0) else np.nan
+    _t = time.perf_counter()
     P = store.storm_predict(X) if (store.track_ready or store.intensity_ready) else {}
+    models_ms = (time.perf_counter() - _t) * 1000
 
     dlat = [float(P[f"y_dlat_{L}"][0]) if f"y_dlat_{L}" in P else np.nan for L in C.LEADS_H]
     dlon = [float(P[f"y_dlon_{L}"][0]) if f"y_dlon_{L}" in P else np.nan for L in C.LEADS_H]
@@ -101,7 +104,9 @@ def build_storm_payload(store, X, meta, observed, mode, rng=None, n_tracks=None)
         peak = {"windKt": round(pk, 1), "imdGrade": grade_name(pk)}
 
     track_ok = all(np.isfinite(dlat)) and all(np.isfinite(dlon))
+    _t = time.perf_counter()
     dist_rows = district_risk(store, lat0, lon0, dlat, dlon, forecast, rng, n_tracks) if track_ok else []
+    strike_ms = (time.perf_counter() - _t) * 1000
 
     env = {
         "seaSurfaceTemp": _f(_first(X, ["d300_mean_sst_c", "c_sst_c"]), 1),
@@ -122,6 +127,8 @@ def build_storm_payload(store, X, meta, observed, mode, rng=None, n_tracks=None)
         "environmental": env,
         "districts": dist_rows,
         "leadHours": list(C.LEADS_H),
+        # inference latency: 14 track/intensity/RI/peak models on one storm row; Monte Carlo strike for all districts
+        "timingMs": {"models": round(models_ms, 1), "strike": round(strike_ms, 1), "mcTracks": int(n_tracks)},
     }
 
 
@@ -198,7 +205,9 @@ def build_occurrence(store, feats, statics, lat, lon, k, t0, storm_positions):
     df["persistence"] = pers
     df["existing_system"] = (pers > 0).astype("int8")
 
+    _t = time.perf_counter()
     probs = store.occurrence_proba(df) if store.occurrence_ready else None
+    occ_ms = (time.perf_counter() - _t) * 1000
     thr = store.occ_threshold
     if probs is not None:
         df["p_cs_plus"] = probs[:, 2:].sum(axis=1)
@@ -236,4 +245,5 @@ def build_occurrence(store, feats, statics, lat, lon, k, t0, storm_positions):
                                                "vertical_wind_shear", "surface_pressure")}
     return {"validTime": _iso(t0), "modelReady": probs is not None, "threshold": thr,
             "zones": zones, "cells": cells, "warningCells": int(sum(c["warning"] for c in cells)),
-            "environmentalBaseline": baseline, "environmentalBaselines": regions}
+            "environmentalBaseline": baseline, "environmentalBaselines": regions,
+            "timingMs": {"inference": round(occ_ms, 1), "cells": int(len(df))}}

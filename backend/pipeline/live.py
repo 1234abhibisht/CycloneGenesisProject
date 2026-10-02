@@ -5,6 +5,7 @@ One live forecast cycle:
   rapid-intensification / peak / district strike probabilities  ->  SQLite.
 """
 import logging
+import time
 import traceback
 
 import numpy as np
@@ -95,9 +96,11 @@ def run_cycle(store, download=True, now=None):
         t0 = gfs.latest_valid_time()
         if t0 is None:
             raise RuntimeError("no GFS data on disk yet (download failed or NOMADS unreachable)")
+        _t = time.perf_counter()
         F, have = gfs.assemble_F(t0, lsm=gfs.load_static_lsm())
         msgs.append(f"valid {t0:%Y-%m-%d %HZ}, {len(have)}/{len(F['time'])} time steps available")
         feats, statics = features_grid.compute(F)
+        feat_s = time.perf_counter() - _t
         k = len(F["time"]) - 1
 
         ids = storms.active_storm_ids(t0)
@@ -105,6 +108,9 @@ def run_cycle(store, download=True, now=None):
         occ = FC.build_occurrence(store, feats, statics, F["lat"], F["lon"], k, t0, positions)
         db.save_occurrence(FC._iso(t0), occ)
         msgs.append(f"occurrence: model={occ['modelReady']} warning cells={occ['warningCells']}")
+        tm = occ.get("timingMs") or {}
+        msgs.append(f"timing: GFS fields+features {feat_s:.1f} s, occurrence inference {tm.get('inference')} ms "
+                    f"for {tm.get('cells')} cells")
 
         rng = np.random.default_rng(C.RANDOM_SEED)
         for sid in ids:
@@ -139,4 +145,6 @@ def _forecast_storm(store, sid, feats, statics, F, t0, rng):
     sources = sorted({str(x) for x in db_sources(sid)})
     payload["inputs"] = dict(quality, gfsValidTime=FC._iso(t0), sources=sources, note=note)
     db.save_forecast(sid, payload["issuedAt"], "live", payload)
-    return f"{sid}: forecast issued {payload['issuedAt']}"
+    tm = payload.get("timingMs") or {}
+    return (f"{sid}: forecast issued {payload['issuedAt']} (models {tm.get('models')} ms, "
+            f"strike {tm.get('strike')} ms for {tm.get('mcTracks')} tracks)")
