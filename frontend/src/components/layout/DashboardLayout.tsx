@@ -1,7 +1,7 @@
 import '../../pages/command-workspace.css';
 import React, { useMemo, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { Sidebar } from './Sidebar';
+import { DashboardNavigation } from './DashboardNavigation';
 import { TopBar } from './TopBar';
 
 const pageTitles: Record<string, string> = {
@@ -17,7 +17,6 @@ const pageTitles: Record<string, string> = {
 };
 
 export const DashboardLayout: React.FC = () => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(() => new Date().toISOString());
   // Bumped after a Live/Replay switch or a manual refresh: remounting the page
   // makes every hook on it refetch, so no page can keep the previous mode's data.
@@ -35,8 +34,8 @@ export const DashboardLayout: React.FC = () => {
   const title = pageTitles[page] || 'Overview';
 
   return (
-    <div className="google-workspace observatory-shell flex h-dvh overflow-hidden antialiased">
-      <Sidebar isCollapsed={isCollapsed} onToggle={() => setIsCollapsed(!isCollapsed)} />
+    <div className="google-workspace observatory-shell flex flex-col h-dvh overflow-hidden antialiased">
+      <DashboardNavigation />
       <div className="flex flex-col flex-1 overflow-hidden relative">
         <TopBar 
           title={title} 
