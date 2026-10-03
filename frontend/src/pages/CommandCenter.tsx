@@ -27,7 +27,7 @@ export const CommandCenter = () => {
   const last = standby?.lastSystem;
   const standbyLine = last ? `Last system: ${last.name} (${new Date(last.lastSeen).toLocaleDateString('en-GB', { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric' })})${standby?.dataValidTime ? ` · latest GFS data ${ageLabel(standby.dataValidTime)}` : ''}` : 'No storm record available in this workspace';
   return <div className="basin-workspace">
-    <div className="basin-heading"><div><p className="eyebrow">OBSERVATORY / NORTH INDIAN OCEAN</p><h1>A clearer view of the storm.</h1><p className="basin-intro">Track the basin. Read the forecast. Put each observation in context.</p></div><Link className="basin-link" to="/dashboard/historical">Explore the archive <ArrowUpRight size={16}/></Link></div>
+    <div className="basin-heading with-cloud"><div><p className="eyebrow">OBSERVATORY / NORTH INDIAN OCEAN</p><h1>A clearer view of the storm.</h1><p className="basin-intro">Track the basin. Read the forecast. Put each observation in context.</p></div><Link className="basin-link" to="/dashboard/historical">Explore the archive <ArrowUpRight size={16}/></Link></div>
     <div className="basin-status" role="status"><span className="status-dot"/><strong>{loading ? 'Connecting to observation sources' : source}</strong><span>{cyclone ? `${cyclone.name} · ${cyclone.basin}${inputs ? ` · GFS data ${ageLabel(inputs.gfsValidTime)}` : ''}` : standbyLine}</span><button onClick={refresh} disabled={loading}><RefreshCw size={14}/> Refresh observations</button></div>
     {error && <p className="basin-error" role="alert">Observations could not be refreshed. {error}</p>}
     <div className="basin-grid">
