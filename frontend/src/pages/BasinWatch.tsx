@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { CircleMarker, Popup } from 'react-leaflet';
 import { Activity, Droplets, RefreshCw, Thermometer, Wind } from 'lucide-react';
 import { CycloneMap } from '../components/maps/CycloneMap';
+import { DashboardHero } from '../components/layout/DashboardHero';
 import { getBasinAssessment, type BasinAssessment, type BasinZone } from '../services/basinService';
 
 const styleByRisk = {
@@ -30,6 +31,9 @@ export default function BasinWatch() {
 
   return (
     <div className="space-y-6 max-w-[1750px] mx-auto text-[#0B2A33]">
+      <DashboardHero kicker="CYCLONE AI / COASTAL INTELLIGENCE" title={'Weather information.\nMade easier to understand.'}
+        text="Explore the observations, research and tools that help put tropical cyclone information in context."
+        actionLabel="See basins" targetId="basin-zones" />
       <div className="bg-[#FFFFFF] border border-[#CFE5E9]/60 rounded-xl p-5 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1 text-xs font-semibold uppercase tracking-wider text-[#0B7F8E]">
@@ -50,7 +54,7 @@ export default function BasinWatch() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+      <div id="basin-zones" className="grid grid-cols-1 xl:grid-cols-12 gap-6" style={{ scrollMarginTop: 16 }}>
         <div className="xl:col-span-4 space-y-3">
           {assessment?.zones.map(zone => {
             const visual = styleByRisk[zone.riskLevel];
