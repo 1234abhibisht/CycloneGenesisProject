@@ -29,3 +29,14 @@
 /* cloud image behind the page quote on Overview and Live monitoring */
 .basin-heading.with-cloud{position:relative;isolation:isolate;border-radius:12px;border:1px solid #dcebf2;padding:40px 44px;background-color:#e9f4f9;background-image:linear-gradient(90deg,#f1f9fcf5 0%,#eff8fce8 34%,#e7f3fa55 68%,#d4e9f322 100%),url('/cloud-coast.jpg');background-size:cover;background-position:center 45%}
 @media(max-width:600px){.basin-heading.with-cloud{padding:26px 20px}}
+
+.standby-test-link{color:#1b617d;font-weight:600;text-decoration:underline;text-underline-offset:2px}
+.map-box-note{display:block;margin-top:4px;font-size:11px;line-height:1.5;color:#5b7b8a;max-width:560px}
+.basin-status .region-switch{margin-left:0;border:1px solid #9fc6d3;border-radius:999px;padding:5px 14px;background:#ffffffcc;color:#2d5f70;font-size:11px;transition:background .15s,border-color .15s}
+.basin-status .region-switch.first{margin-left:auto}
+.basin-status .region-switch:hover{border-color:#1b617d}
+.basin-status .region-switch[aria-pressed=true]{background:#1b617d;border-color:#1b617d;color:#fff}
+.basin-heading.with-cloud{min-height:430px;padding:58px 48px;align-items:center}
+@media(max-width:1200px){.basin-heading.with-cloud{min-height:400px}}
+@media(max-width:900px){.basin-heading.with-cloud{min-height:0;padding:40px 30px}}
+@media(max-width:600px){.basin-heading.with-cloud{padding:26px 20px}}
