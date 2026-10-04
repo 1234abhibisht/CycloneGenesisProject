@@ -86,7 +86,7 @@ export default function ModelPerformance() {
           </div>
           <h1 className="text-xl font-bold">Model performance</h1>
           <p className="text-xs text-[#4A6670] mt-0.5">
-            Test period {data.testPeriod}. Trained on ERA5 + IBTrACS 1990-2002, tuned 2003-2004, calibrated 2005-2006.
+            Test period {data.testPeriod}. Trained on ERA5 + IBTrACS 1990-2016, tuned 2017-2018, calibrated 2019-2020.
           </p>
         </div>
         <span className="text-[11px] px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-[#1F7A4D] self-start md:self-center">

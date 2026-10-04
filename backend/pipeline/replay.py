@@ -1,5 +1,5 @@
 """
-Historical replay: the unseen TEST storms (2007-2008: Sidr, Nargis, Nisha, ...).
+Historical replay: the unseen TEST storms (2021-2023: Tauktae, Yaas, Biparjoy, Mocha, ...; plus Oct-Dec 2025: Montha, Ditwah, ...).
 Uses the storm rows exported from Colab (ERA5 features already computed, same as notebook 06),
 so every replay forecast is the real model output for that storm and time.
 
@@ -239,7 +239,7 @@ def compute_strike_verification(store):
         "detectedOrangeOrRed": int((hit & (p >= 0.25)).sum()), "detectedYellowOrAbove": int((hit & (p >= 0.10)).sum()),
         "orangeOrRedForecasts": int((p >= 0.25).sum()), "orangeOrRedCorrect": int((hit & (p >= 0.25)).sum()),
         "bins": bins, "windowHours": C.LEADS_H[-1], "radiusKm": C.STRIKE_RADIUS_KM,
-        "truth": "IBTrACS best track (IMD RSMC New Delhi) of the unseen 2007-08 test storms",
+        "truth": "IBTrACS best track (IMD RSMC New Delhi) of the unseen 2021-23 and 2025 test storms",
         "climatology": "the observed hit rate over all scored district-forecast pairs (the same chance everywhere)",
     }
 

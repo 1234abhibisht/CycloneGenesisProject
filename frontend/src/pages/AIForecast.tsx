@@ -45,7 +45,7 @@ export const AIForecast: React.FC = () => {
           {standby?.message || 'Track and intensity forecasts appear here when a storm is active in the North Indian Ocean.'}
         </p>
         <p className="text-sm text-[#4A6670] mt-3">
-          Open <strong>Forecast (Test Storms)</strong> to see the real model output for the unseen 2007-08 test storms, or open Basin Watch
+          Open <strong>Forecast (Test Storms)</strong> to see the real model output for the unseen 2021-23 and 2025 test storms, or open Basin Watch
           for the 24 h formation probabilities.
         </p>
       </div>
@@ -60,7 +60,7 @@ export const AIForecast: React.FC = () => {
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-semibold uppercase tracking-wider text-[#0B7F8E]">Track & intensity forecast</span>
             <span className="text-[#4A6670]">•</span>
-            <span className="text-xs text-[#4A6670]">{main} trained on ERA5 + IBTrACS (1990-2002)</span>
+            <span className="text-xs text-[#4A6670]">{main} trained on ERA5 + IBTrACS (1990-2016)</span>
           </div>
           <h1 className="text-xl font-bold tracking-tight">{cyclone?.name || 'Storm'} · next 24 hours</h1>
           <p className="text-xs text-[#4A6670] mt-0.5">
@@ -218,7 +218,7 @@ export const AIForecast: React.FC = () => {
               <ShieldCheck className="w-4 h-4 text-[#0B7F8E]" /> HOW GOOD IS THIS FORECAST?
             </div>
             <p className="text-[11px] text-[#4A6670] mt-1">
-              On the unseen 2007-08 storms, the 24 h track error was{' '}
+              On the unseen 2021-23 storms, the 24 h track error was{' '}
               <strong className="text-[#0B2A33]">{errorAt(perf?.track, main, 24)?.toFixed(0) ?? '—'} km</strong>
               {' '}(CLIPER {errorAt(perf?.track, 'CLIPER', 24)?.toFixed(0) ?? '—'} km) and the 24 h wind error{' '}
               <strong className="text-[#0B2A33]">{errorAt(perf?.intensity, main, 24)?.toFixed(1) ?? '—'} kt</strong>

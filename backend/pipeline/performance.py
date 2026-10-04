@@ -39,7 +39,7 @@ def summary():
         s = (s / s.sum()).sort_values(ascending=False).head(12)
         features = [{"name": k, "importance": round(100 * float(v), 1)} for k, v in s.items()]
     return {
-        "testPeriod": "2007-2008 (storms never used for training, tuning or calibration)",
+        "testPeriod": "2021-2023 (storms never used for training, tuning or calibration)",
         "track": order(track), "intensity": order(intensity),
         "occurrenceGroups": [] if occ is None else [{"group": i, **{k: (None if pd.isna(v) else float(v))
                                                                      for k, v in r.items()}} for i, r in occ.iterrows()],

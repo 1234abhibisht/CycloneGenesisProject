@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowRight, CloudSun, Waves, ShieldCheck } from 'lucide-react';
 const content:Record<string,[string,string,string]>={
- 'test-strike':['TEST STORMS / DISTRICT STRIKE','Past storms.\nChecked against reality.','Pick a 2007-08 test storm the model never saw and compare its district strike chances with where the storm really went.'],
+ 'test-strike':['TEST STORMS / DISTRICT STRIKE','Past storms.\nChecked against reality.','Pick a 2021-23 or 2025 test storm the model never saw and compare its district strike chances with where the storm really went.'],
  warnings:['WARNINGS & PREPAREDNESS','Know what’s ahead.\nPrepare with confidence.','Find your coastal district, understand the information available, and follow official local guidance.'],
  command:['YOUR COAST. YOUR WEATHER.','A clearer forecast.\nA better prepared coast.','Understand tropical cyclones with accessible maps, weather observations and the context behind each forecast.'],
  live:['OCEAN & ATMOSPHERE','See the conditions\nshaping our weather.','Explore ocean temperature, winds and moisture together to understand the environment around a storm.'],

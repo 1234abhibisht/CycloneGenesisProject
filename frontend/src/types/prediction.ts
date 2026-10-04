@@ -11,7 +11,7 @@ export interface ForecastPoint {
   windChange?: number | null; // knots vs. now
   predictedIMDGrade: IMDGrade | 'LP' | null;
   trend?: 'intensifying' | 'stable' | 'weakening' | null;
-  uncertainty: number | null; // km radius (67 % of 2003-2006 errors fell inside)
+  uncertainty: number | null; // km radius (67 % of 2017-2018 validation errors fell inside)
   timestamp: string;
 }
 

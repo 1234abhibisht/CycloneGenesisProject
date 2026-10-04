@@ -27,7 +27,7 @@ export const PredictedTrack: React.FC<PredictedTrackProps> = ({
     <>
       {/* Uncertainty Cone / Area Circles along forecast track */}
       {visiblePoints.map((point, idx) => {
-        // radius that contained 67 % of the model's 2003-2006 track errors at this lead
+        // radius that contained 67 % of the model's 2017-2018 validation track errors at this lead
         const radiusKm = point.uncertainty;
         if (!radiusKm) return null;
         return (

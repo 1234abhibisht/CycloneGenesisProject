@@ -84,11 +84,11 @@ TIME_STEP_H = 3         # ERA5 cadence = issue-time cadence
 # ----------------------------------------------------------------------------
 # 4. YEARS AND SPLIT
 # ----------------------------------------------------------------------------
-YEARS = (1990, 2008)            # all data you have
-TRAIN = (1990, 2002)            # model fitting
-VAL = (2003, 2004)              # early stopping / tuning / model comparison
-CAL = (2005, 2006)              # calibration + threshold (cross-fit 2005 <-> 2006)
-TEST = (2007, 2008)             # final exam: notebook 06, run ONCE at the end (Sidr, Gonu, Nargis)
+YEARS = (1990, 2023)            # all data you have
+TRAIN = (1990, 2016)            # model fitting
+VAL = (2017, 2018)              # early stopping / tuning / model comparison
+CAL = (2019, 2020)              # calibration + threshold (cross-fit 2019 <-> 2020)
+TEST = (2021, 2023)             # final exam: notebook 06, run ONCE at the end (+ recent Oct-Dec 2025 storms)
 
 def split_of(year):
     for name, (a, b) in (("train", TRAIN), ("val", VAL), ("cal", CAL), ("test", TEST)):
@@ -148,7 +148,7 @@ TABLE_FORMAT = "parquet"        # "parquet" (recommended) or "pickle"
 # ----------------------------------------------------------------------------
 N_MC_TRACKS = 1000
 N_MC_TRACKS_VALIDATION = 300
-CASE_STORM = "SIDR"             # named storm for the case-study figure (2007 = test year)
+CASE_STORM = "MONTHA"           # named storm for the case-study figure (Oct 2025, unseen)
 STRIKE_BANDS = [(50, "red"), (25, "orange"), (10, "yellow"), (0, "green")]
 
 # ----------------------------------------------------------------------------

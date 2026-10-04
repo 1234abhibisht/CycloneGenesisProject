@@ -12,7 +12,7 @@ const styleByRisk = {
 };
 
 const metric = (value: number | null | undefined, suffix: string) => value != null && Number.isFinite(value) ? `${value}${suffix}` : 'N/A';
-const cellColor = (p: number) => (p >= 0.15 ? '#f87171' : p >= 0.05 ? '#fbbf24' : '#0B7F8E');
+const cellColor = (p: number) => (p >= 0.2 ? '#f87171' : p >= 0.2 / 3 ? '#fbbf24' : '#0B7F8E');
 
 export default function BasinWatch() {
   const [assessment, setAssessment] = useState<BasinAssessment | null>(null);
@@ -70,7 +70,7 @@ export default function BasinWatch() {
           <p className="text-[11px] text-[#4A6670]">
             Dots: 0.5° sea cells with at least 2% chance of any depression within 200 km in 24 h (red: above the calibrated warning
             threshold for a cyclonic storm). Zone level: HIGH at or above the warning threshold, MODERATE at one third of it.
-            On the unseen 2007-08 test years this threshold caught 96% of events with 0.09 false-alarm zones per forecast.
+            On the unseen 2021-23 test years this threshold caught 94% of events with 0.10 false-alarm zones per forecast.
             {assessment?.zoneMethod ? ` ${assessment.zoneMethod}` : ''}
           </p>
         </div>

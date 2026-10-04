@@ -147,7 +147,7 @@ export const SystemData: React.FC = () => {
                 </tr>
               ))}
               <tr>
-                <td className="py-2 font-semibold">ERA5 (1990-2008) + IBTrACS<div className="text-[11px] text-[#4A6670] font-normal">Training data (Colab notebooks 00-06)</div></td>
+                <td className="py-2 font-semibold">ERA5 (1990-2023) + IBTrACS<div className="text-[11px] text-[#4A6670] font-normal">Training data (Colab notebooks 00-06)</div></td>
                 <td className="py-2 text-[10px] font-mono text-[#4A6670]">TRAINING</td>
                 <td className="py-2 text-right"><span className="px-2 py-0.5 rounded text-[10px] font-bold border bg-[#0B7F8E]/15 text-[#0B7F8E] border-[#0B7F8E]/30">OFFLINE</span></td>
               </tr>

@@ -44,7 +44,7 @@ export const IntensityChart: React.FC<IntensityChartProps> = ({
   modelName = 'Model forecast',
 }) => {
   // Observed winds, then the model forecast (+6..+24 h). The shaded band is +/- the model's mean absolute
-  // error at each lead on the unseen 2007-08 test storms (when provided) - no simulated or random values.
+  // error at each lead on the unseen 2021-23 test storms (when provided) - no simulated or random values.
   const combinedData: any[] = observedData.map((d) => ({ ...d }));
   const last = observedData[observedData.length - 1];
   if (last && predictedData.length) {

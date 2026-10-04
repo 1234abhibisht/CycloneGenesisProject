@@ -87,7 +87,7 @@ export const HistoricalIntelligence: React.FC = () => {
       <div className={`${card} p-5 flex flex-col md:flex-row md:items-center justify-between gap-4`}>
         <div>
           <div className="flex items-center gap-2 mb-1 text-xs font-semibold uppercase tracking-wider text-[#0B7F8E]">
-            Unseen test storms · 2007-2008
+            Unseen test storms · 2021-2023 + 2025
           </div>
           <h1 className="text-xl font-bold tracking-tight">Forecast replay</h1>
           <p className="text-xs text-[#4A6670] mt-0.5">

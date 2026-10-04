@@ -6,7 +6,7 @@ The frontend (Vite/React) calls these routes; the JSON shapes match frontend/src
 
 Modes
   live   : forecasts from the latest NOAA GFS run + active storm fixes (IBTrACS ACTIVE / GDACS / manual)
-  replay : real model forecasts for the unseen 2007-08 test storms (for demos when no cyclone is active)
+  replay : real model forecasts for the unseen 2021-23 and 2025 test storms (for demos when no cyclone is active)
 """
 import logging
 import math
@@ -169,7 +169,7 @@ def system_status():
                             "surge_model": "not included", "warning_tiers": ["GREEN", "YELLOW", "ORANGE", "RED"],
                             "method": "Monte Carlo strike probability (storm centre within 100 km)"},
         "historical_archive": {"total_storms": len(replay.catalog()) if replay.available() else 0,
-                               "sources": ["IBTrACS", "ERA5 (test years 2007-2008)"]},
+                               "sources": ["IBTrACS", "ERA5 (test years 2021-2023 + Oct-Dec 2025)"]},
         "live_data": {"gfs_files": len(files), "latest_gfs_valid_time": None if latest is None else
                       latest.strftime("%Y-%m-%dT%H:%MZ"), "pipeline_running": _STATE["running"],
                       "last_runs": db.last_runs(3)},
@@ -236,7 +236,7 @@ def cyclone_active():
         "lastSystem": _last_system(),
         "sources": ["NOAA_GFS", "IBTRACS_ACTIVE", "GDACS"],
         "message": "No active cyclone in the North Indian Ocean. Basin formation probabilities are on Basin Watch; "
-                   "switch to replay mode to explore the 2007-08 test storms.",
+                   "switch to replay mode to explore the 2021-23 and 2025 test storms.",
     })
 
 
