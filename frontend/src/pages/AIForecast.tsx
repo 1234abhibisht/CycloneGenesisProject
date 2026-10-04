@@ -11,7 +11,7 @@ import { IntensityChart } from '../components/charts/IntensityChart';
 import { getModelPerformance, errorAt } from '../services/modelService';
 import type { PerformanceSummary } from '../types/model';
 import { FORECAST_HOURS, type ForecastPoint } from '../types/prediction';
-import { ageLabel, confidenceNote, fmtIST, fmtUTC, trackHistoryLabel } from '../utils/dataAge';
+import { ageLabel, confidenceNote, fmtTime, trackHistoryLabel } from '../utils/dataAge';
 
 const card = 'bg-[#FFFFFF] border border-[#CFE5E9]/60 rounded-xl p-5 shadow-sm';
 const trendColor = (t?: string | null) =>
@@ -64,12 +64,12 @@ export const AIForecast: React.FC = () => {
           </div>
           <h1 className="text-xl font-bold tracking-tight">{cyclone?.name || 'Storm'} · next 24 hours</h1>
           <p className="text-xs text-[#4A6670] mt-0.5">
-            Issued {prediction?.issuedAt ? new Date(prediction.issuedAt).toUTCString().replace('GMT', 'UTC') : '—'}
+            Issued {prediction?.issuedAt ? fmtTime(prediction.issuedAt, { year: true }) : '—'}
             {cyclone?.isReplay ? ' · REPLAY of a test storm the model never saw' : ' · live NOAA GFS input'}
           </p>
           {inputs && (
             <p className="text-xs text-[#4A6670] mt-0.5">
-              GFS data valid {fmtUTC(inputs.gfsValidTime)} ({ageLabel(inputs.gfsValidTime)}) · track history {trackHistoryLabel(inputs)}
+              GFS data valid {fmtTime(inputs.gfsValidTime)} ({ageLabel(inputs.gfsValidTime)}) · track history {trackHistoryLabel(inputs)}
               {inputs.sources.length > 0 ? ` from ${inputs.sources.join(', ').replace('IBTRACS_ACTIVE', 'IBTrACS')}` : ''}
             </p>
           )}
@@ -115,7 +115,7 @@ export const AIForecast: React.FC = () => {
                 <div className="flex justify-between"><span>Change:</span>
                   <strong className={trendColor(f?.trend)}>{f?.windChange != null ? `${f.windChange > 0 ? '+' : ''}${Math.round(f.windChange)} kt` : '—'}</strong></div>
                 <div className="flex justify-between"><span>Valid:</span>
-                  <strong className="text-[#0B2A33]" title={f ? fmtIST(f.timestamp) : undefined}>{f ? fmtUTC(f.timestamp) : '—'}</strong></div>
+                  <strong className="text-[#0B2A33]">{f ? fmtTime(f.timestamp) : '—'}</strong></div>
                 <div className="flex justify-between"><span>Position:</span>
                   <strong className="text-[#0B2A33]">{f ? `${f.lat.toFixed(1)}°N ${f.lon.toFixed(1)}°E` : '—'}</strong></div>
                 <div className="flex justify-between text-[#0B7F8E]"><span>Test error:</span>

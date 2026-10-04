@@ -9,6 +9,7 @@ import { PredictedTrack } from '../components/maps/PredictedTrack';
 import { CycloneMarker } from '../components/maps/CycloneMarker';
 import type { TrackPoint } from '../types/cyclone';
 import { FORECAST_HOURS } from '../types/prediction';
+import { fmtTime } from '../utils/dataAge';
 
 const card = 'bg-[#FFFFFF] border border-[#CFE5E9]/60 rounded-xl p-4 shadow-sm';
 
@@ -24,7 +25,7 @@ const toTrack = (p: HistoricalReplayPoint): TrackPoint => ({
   nature: 'TS', stormSpeed: 0, stormDir: 0, imdGrade: (p.imdGrade ?? undefined) as TrackPoint['imdGrade'],
 });
 
-const utc = (t?: string) => (t ? new Date(t).toUTCString().slice(5, 22) + ' UTC' : '—');
+const utc = (t?: string) => fmtTime(t, { year: true });
 
 export const HistoricalIntelligence: React.FC = () => {
   const [catalog, setCatalog] = useState<HistoricalStormSummary[]>([]);

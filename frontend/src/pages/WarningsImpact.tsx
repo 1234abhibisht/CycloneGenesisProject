@@ -6,9 +6,10 @@ import { fetchHistoricalCatalog } from '../services/historicalService';
 import type { HistoricalStormSummary } from '../types/historical';
 import { useCyclone } from '../hooks/useCyclone';
 import type { GISRiskAnalysisResult, District, DetailedDistrictRisk } from '../types/risk';
+import { fmtDateIST, fmtTime as fmtISTUTC } from '../utils/dataAge';
 const pct=(v:number|null|undefined)=>v==null?'—':`${Math.round(100*v)}%`;
-const fmtTime=(iso?:string)=>iso?new Date(iso).toLocaleString('en-GB',{timeZone:'UTC',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})+' UTC':'';
-const stormLabel=(s:HistoricalStormSummary)=>`${s.name} (${new Date(s.landfallDate).toLocaleDateString('en-GB',{month:'short',year:'numeric',timeZone:'UTC'})}, ${s.peakIMDGrade})`;
+const fmtTime=(iso?:string)=>iso?fmtISTUTC(iso,{year:true}):'';
+const stormLabel=(s:HistoricalStormSummary)=>`${s.name} (${fmtDateIST(s.landfallDate,{year:true,day:false})}, ${s.peakIMDGrade})`;
 const actualText=(a?:DetailedDistrictRisk)=>!a||a.actualHit==null?'—':a.actualHit?`Hit · ${a.actualDistanceKm} km at +${a.actualHour} h`:`Not hit · closest ${a.actualDistanceKm} km`;
 const tiers=[{key:'RED',title:'Red',label:'50% or higher strike chance',description:'The storm centre is more likely than not to pass within 100 km in the next 24 h. Read the official advisory and follow local authorities.'},{key:'ORANGE',title:'Orange',label:'25-50% strike chance',description:'A real possibility of the storm centre passing within 100 km in 24 h. Review household plans and keep checking official updates.'},{key:'YELLOW',title:'Yellow',label:'10-25% strike chance',description:'The storm could come close. Stay informed about changing conditions.'}];
 export default function WarningsImpact({variant='live'}:{variant?:'live'|'test'}){

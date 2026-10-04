@@ -6,6 +6,7 @@ import {
   type BackendStatus, type SourceStatus, type StormFixRecord,
 } from '../services/api';
 import { RevealPasswordInput } from '../components/ui/RevealPasswordInput';
+import { fmtTime } from '../utils/dataAge';
 
 const card = 'bg-[#FFFFFF] border border-[#CFE5E9]/60 rounded-xl p-4 shadow-sm';
 const ok = (b: boolean | undefined) => (b ? 'text-[#1F7A4D]' : 'text-[#A15C07]');
@@ -160,7 +161,7 @@ export const SystemData: React.FC = () => {
             {(live?.last_runs ?? []).map((r) => (
               <li key={r.id} className="border-b border-[#CFE5E9]/30 pb-1.5">
                 <span className={r.status === 'ok' ? 'text-[#1F7A4D]' : r.status === 'running' ? 'text-[#0B7F8E]' : 'text-[#A15C07]'}>{r.status.toUpperCase()}</span>
-                <span className="text-[#4A6670]"> · {r.started_at}</span>
+                <span className="text-[#4A6670]"> · {fmtTime(r.started_at, { year: true })}</span>
                 <div className="text-[#4A6670] break-words">{(r.message ?? '').slice(0, 300)}</div>
               </li>
             ))}
@@ -204,13 +205,13 @@ export const SystemData: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left font-mono text-xs">
               <thead className="text-[#4A6670] border-b border-[#CFE5E9]/80">
-                <tr><th className="p-2">Storm</th><th className="p-2">Time (UTC)</th><th className="p-2">Position</th><th className="p-2">Wind</th><th className="p-2">Pressure</th><th className="p-2">Source</th><th className="p-2"></th></tr>
+                <tr><th className="p-2">Storm</th><th className="p-2">Time (IST, UTC)</th><th className="p-2">Position</th><th className="p-2">Wind</th><th className="p-2">Pressure</th><th className="p-2">Source</th><th className="p-2"></th></tr>
               </thead>
               <tbody className="divide-y divide-[#CFE5E9]/30">
                 {fixes.map((r) => (
                   <tr key={r.id}>
                     <td className="p-2 text-[#0B7F8E] font-bold">{r.name || r.storm_id}</td>
-                    <td className="p-2">{r.timestamp}</td>
+                    <td className="p-2">{fmtTime(r.timestamp, { year: true })}</td>
                     <td className="p-2">{r.lat.toFixed(1)}°N {r.lon.toFixed(1)}°E</td>
                     <td className="p-2">{r.wind_speed != null ? `${r.wind_speed} kt` : '—'}</td>
                     <td className="p-2">{r.pressure != null ? `${r.pressure} hPa` : '—'}</td>

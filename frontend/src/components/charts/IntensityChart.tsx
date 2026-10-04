@@ -1,4 +1,5 @@
 import React from 'react';
+import { fmtAxisIST } from '../../utils/dataAge';
 import {
   ResponsiveContainer,
   ComposedChart,
@@ -71,7 +72,7 @@ export const IntensityChart: React.FC<IntensityChartProps> = ({
           <XAxis 
             dataKey="time" 
             stroke="#4A6670" 
-            tickFormatter={(tick) => { const d = new Date(tick); return `${d.getUTCDate()}/${String(d.getUTCHours()).padStart(2, '0')}Z`; }} 
+            tickFormatter={(tick) => fmtAxisIST(typeof tick === 'number' ? tick : String(tick))} 
           />
           <YAxis 
             stroke="#4A6670" 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { fmtDateIST, fmtTime } from '../../utils/dataAge';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -21,7 +22,7 @@ const CustomTooltip = ({ active, payload, label, variable, unit }: any) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-[#E1F4F6] border border-[#CFE5E9] p-3 rounded shadow-lg z-50">
-        <p className="text-[#4A6670] text-sm mb-1">{new Date(label).toLocaleString()}</p>
+        <p className="text-[#4A6670] text-sm mb-1">{fmtTime(new Date(label).toISOString(), { year: true })}</p>
         <p style={{ color: payload[0].color }} className="text-sm font-semibold">
           {variable}: {payload[0].value} {unit}
         </p>
@@ -52,7 +53,7 @@ export const EnvironmentalChart: React.FC<EnvironmentalChartProps> = ({
           <XAxis 
             dataKey="timestamp" 
             stroke="#4A6670" 
-            tickFormatter={(tick) => new Date(tick).toLocaleDateString([], { month: 'short', day: 'numeric' })} 
+            tickFormatter={(tick) => fmtDateIST(new Date(tick).toISOString(), { year: false })} 
           />
           <YAxis stroke="#4A6670" />
           <Tooltip content={<CustomTooltip variable={variable} unit={unit} />} />
