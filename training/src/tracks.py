@@ -6,11 +6,24 @@ from . import config as C
 from .common import occ_class
 
 
+def parse_iso_time(s):
+    """ISO_TIME -> datetime. Handles the normal IBTrACS form (2019-12-31 18:00:00) and rows re-saved
+    by Excel as day-first (31-12-2019 18:00), which plain to_datetime can read with day and month swapped."""
+    t = s.astype(str).str.strip()
+    dmy = t.str.match(r"^\d{1,2}[-/]\d{1,2}[-/]\d{4}")
+    out = pd.Series(pd.NaT, index=s.index, dtype="datetime64[ns]")
+    if (~dmy).any():
+        out[~dmy] = pd.to_datetime(t[~dmy], errors="coerce", format="mixed")
+    if dmy.any():
+        out[dmy] = pd.to_datetime(t[dmy], errors="coerce", dayfirst=True, format="mixed")
+    return out
+
+
 def load_ibtracs(path=None, years=None):
     """North Indian basin fixes, one row per storm and time, sorted."""
     path = path or C.IBTRACS_CSV
     df = pd.read_csv(path, skiprows=[1], low_memory=False, na_values=[" ", ""], keep_default_na=True)
-    df["ISO_TIME"] = pd.to_datetime(df["ISO_TIME"])
+    df["ISO_TIME"] = parse_iso_time(df["ISO_TIME"])
     df = df[df["BASIN"] == "NI"]
     if "TRACK_TYPE" in df:
         # keep final ("main") and recent provisional tracks ("PROVISIONAL", "US-PROVISIONAL"); drop spur tracks
