@@ -2,10 +2,10 @@
  "main_model": "XGBoost",
  "params": {
   "Ridge (linear)|dlat": {
-   "alpha": 1.0
+   "alpha": 10.0
   },
   "Ridge (linear)|dlon": {
-   "alpha": 10.0
+   "alpha": 1.0
   },
   "Ridge (linear)|dwind": {
    "alpha": 10.0
@@ -31,7 +31,7 @@
    "min_samples_leaf": 5
   },
   "Random Forest|dwind": {
-   "max_depth": 8,
+   "max_depth": null,
    "min_samples_leaf": 5
   },
   "Gradient Boosting|dlat": {
@@ -82,17 +82,17 @@
   "CatBoost|dlat": {
    "iterations": 600,
    "learning_rate": 0.05,
-   "depth": 6
+   "depth": 4
   },
   "CatBoost|dlon": {
    "iterations": 600,
    "learning_rate": 0.05,
-   "depth": 4
+   "depth": 6
   },
   "CatBoost|dwind": {
    "iterations": 600,
    "learning_rate": 0.05,
-   "depth": 6
+   "depth": 4
   },
   "XGBoost|dlat": {
    "n_estimators": 400,
@@ -106,7 +106,7 @@
   "XGBoost|dlon": {
    "n_estimators": 400,
    "learning_rate": 0.03,
-   "max_depth": 5,
+   "max_depth": 3,
    "subsample": 0.8,
    "colsample_bytree": 0.8,
    "min_child_weight": 5,
@@ -115,7 +115,7 @@
   "XGBoost|dwind": {
    "n_estimators": 400,
    "learning_rate": 0.03,
-   "max_depth": 5,
+   "max_depth": 3,
    "subsample": 0.8,
    "colsample_bytree": 0.8,
    "min_child_weight": 5,
