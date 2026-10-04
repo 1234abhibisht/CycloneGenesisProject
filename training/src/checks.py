@@ -3,14 +3,14 @@ import numpy as np
 import pandas as pd
 
 from . import config as C
-from .common import buffer_grid, months
+from .common import all_months, buffer_grid, months
 
 
 def missing_months(years=None):
-    """One row per (kind, folder, strip, year, month) that is missing."""
+    """One row per (kind, folder, strip, year, month) that is missing (default: C.YEARS + recent test months)."""
     from .io_era5 import find_file
     rows = []
-    for y, m in months(years):
+    for y, m in (months(years) if years else all_months()):
         for folder in list(C.SINGLE_LEVEL) + list(C.PRESSURE_LEVEL):
             if find_file(C.ERA5_ROOT / folder, y, m) is None:
                 rows.append(("main", folder, "", y, m))

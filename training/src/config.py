@@ -84,17 +84,44 @@ TIME_STEP_H = 3         # ERA5 cadence = issue-time cadence
 # ----------------------------------------------------------------------------
 # 4. YEARS AND SPLIT
 # ----------------------------------------------------------------------------
-YEARS = (1990, 2008)            # all data you have
-TRAIN = (1990, 2002)            # model fitting
-VAL = (2003, 2004)              # early stopping / tuning / model comparison
-CAL = (2005, 2006)              # calibration + threshold (cross-fit 2005 <-> 2006)
-TEST = (2007, 2008)             # final exam: notebook 06, run ONCE at the end (Sidr, Gonu, Nargis)
+YEARS = (1990, 2023)            # ERA5 years used for training and the main test
+TRAIN = (1990, 2016)            # model fitting (hyper-parameters tuned by year-grouped CV inside these years)
+VAL = (2017, 2018)              # early stopping / model comparison / track-error bank / uncertainty cone
+CAL = (2019, 2020)              # calibration + warning threshold + strike reliability (cross-fit 2019 <-> 2020; Amphan)
+TEST = (2021, 2023)             # final exam: notebook 06, run ONCE at the end (Tauktae, Yaas, Biparjoy, Mocha ...)
+
+# Extra unseen test storms after the main ERA5 range. Only these months are built, so download ERA5 for
+# exactly these months (same variables / folders / file names as every other month).
+# Oct-Dec 2025 = Shakhti, Montha (Oct) and Ditwah (late Nov - 2 Dec). Set to [] to skip.
+RECENT_TEST_MONTHS = [(2025, 10), (2025, 11), (2025, 12)]
+RECENT_TEST_YEARS = tuple(sorted({y for y, _ in RECENT_TEST_MONTHS}))
+
 
 def split_of(year):
     for name, (a, b) in (("train", TRAIN), ("val", VAL), ("cal", CAL), ("test", TEST)):
         if a <= year <= b:
             return name
+    if year in RECENT_TEST_YEARS:
+        return "test"           # recent storms are test storms too; test_group() keeps them apart in reports
     return "other"
+
+
+def test_group(year):
+    """'main' for the TEST years, 'recent' for RECENT_TEST_MONTHS storms (None for other years)."""
+    if TEST[0] <= year <= TEST[1]:
+        return "main"
+    return "recent" if year in RECENT_TEST_YEARS else None
+
+
+def span(years):
+    """(2021, 2023) -> '2021-2023' (used in titles and labels)."""
+    return f"{years[0]}-{years[1]}" if years[0] != years[1] else str(years[0])
+
+
+def split_info():
+    """Everything the website needs to label the splits (written by the export script)."""
+    return {"years": list(YEARS), "train": list(TRAIN), "val": list(VAL), "cal": list(CAL), "test": list(TEST),
+            "recent_test_months": [f"{y}-{m:02d}" for y, m in RECENT_TEST_MONTHS]}
 
 # ----------------------------------------------------------------------------
 # 5. LABELS, CATEGORIES, RADII
@@ -148,7 +175,7 @@ TABLE_FORMAT = "parquet"        # "parquet" (recommended) or "pickle"
 # ----------------------------------------------------------------------------
 N_MC_TRACKS = 1000
 N_MC_TRACKS_VALIDATION = 300
-CASE_STORM = "SIDR"             # named storm for the case-study figure (2007 = test year)
+CASE_STORM = "MOCHA"            # named storm for the case-study figure (May 2023 = test year; "MONTHA" also works)
 STRIKE_BANDS = [(50, "red"), (25, "orange"), (10, "yellow"), (0, "green")]
 
 # ----------------------------------------------------------------------------

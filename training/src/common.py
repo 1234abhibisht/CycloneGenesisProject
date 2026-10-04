@@ -104,3 +104,8 @@ def load_many(files, columns=None, filter_fn=None):
 def months(years=None):
     a, b = years or C.YEARS
     return [(y, m) for y in range(a, b + 1) for m in range(1, 13)]
+
+
+def all_months():
+    """Every month that gets built: all of C.YEARS plus the extra recent test months."""
+    return sorted(set(months(C.YEARS)) | set(map(tuple, C.RECENT_TEST_MONTHS)))

@@ -1,7 +1,7 @@
 """
 Occurrence model: XGBoost multi-class + small-data-safe calibration.
 
-Calibration candidates (chosen by cross-fitting 2007 <-> 2008):
+Calibration candidates (chosen by cross-fitting the two calibration years, C.CAL):
   * temperature scaling  : one parameter, divides all margins by T
   * L2 logistic on margins: multinomial logistic regression on the raw margins
 """

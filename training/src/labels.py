@@ -111,6 +111,7 @@ def storm_rows(tracks, info):
         return pd.DataFrame()
     df = pd.DataFrame(rows)
     df["split"] = df["year"].map(C.split_of)
+    df["test_group"] = df["year"].map(C.test_group)       # "main" (TEST years) / "recent" / None
     return df
 
 

@@ -1,5 +1,7 @@
 """
 Run ONCE in Google Colab (after notebooks 00-06) to package everything the backend needs.
+It also converts the XGBoost track / intensity / RI / peak models to portable JSON files (the backend prefers
+them), so scripts/convert_models_to_json_colab.py no longer has to be run separately.
 
     Colab cell:
         from google.colab import drive; drive.mount('/content/drive')
@@ -9,12 +11,13 @@ Run ONCE in Google Colab (after notebooks 00-06) to package everything the backe
 Output on Drive:  MyDrive/CycloneProject/outputs/backend_artifacts.zip
 Unzip it into     backend/artifacts/      so you get
     backend/artifacts/models/     trained models (occurrence, track, intensity, RI, peak, error bank, cone)
-    backend/artifacts/results/    test-year scores for the Model Performance page
-    backend/artifacts/replay/     unseen 2007-08 test storms with their ERA5 features (demo / replay mode)
+    backend/artifacts/results/    test scores for the Model Performance page + split_info.json (split years, test storms)
+    backend/artifacts/replay/     unseen test storms (2021-23 + recent, e.g. Montha / Ditwah) with their ERA5 features
     backend/artifacts/data/       ERA5 land-sea mask on the model grid (+ district boundaries if you have them)
 
 Nothing on Drive is changed except the new zip file.
 """
+import json
 import os
 import shutil
 import sys
@@ -51,6 +54,22 @@ for name in MODEL_FILES:
         missing.append(name)
 print(f"models: {len(MODEL_FILES) - len(missing)}/{len(MODEL_FILES)} copied", "| MISSING:" if missing else "", *missing)
 
+# 1b) portable JSON copies of the XGBoost storm models ---------------------------
+import joblib  # noqa: E402
+n_json = 0
+for name in [f for f in MODEL_FILES if f.startswith("y_") and f.endswith(".joblib")]:
+    src = OUT / "models" / name
+    if not src.exists():
+        continue
+    try:
+        m = joblib.load(src)
+        if hasattr(m, "get_booster"):                     # XGBRegressor / XGBClassifier
+            m.save_model(str(STAGE / "models" / name.replace(".joblib", ".json")))
+            n_json += 1
+    except Exception as e:
+        print("  JSON conversion skipped for", name, ":", e)
+print(f"models converted to JSON: {n_json}")
+
 # 2) test results (Model Performance page) ------------------------------------
 n = 0
 for f in (OUT / "results").glob("*.csv"):
@@ -60,10 +79,20 @@ print(f"results: {n} csv files")
 
 # 3) replay table: unseen test storms, features exactly as used in notebook 06 --
 df = load_table(OUT / "tables" / "storm_fixes")
-test = df[df["split"] == "test"].sort_values(["SID", "time"])
+test = df[df["split"] == "test"].sort_values(["SID", "time"]).copy()
+test["test_group"] = test["year"].map(C.test_group)          # "main" (TEST years) or "recent"
 test.to_csv(STAGE / "replay" / "replay_storm_fixes.csv", index=False)
 print(f"replay: {len(test)} rows, {test.SID.nunique()} storms:",
       ", ".join(sorted(test.groupby('SID')['NAME'].first().astype(str).str.title().unique())))
+
+# 3b) split years + test storm list, so the website labels come from the data ------
+storms = (test.groupby("SID").agg(name=("NAME", "first"), group=("test_group", "first"), start=("time", "min"),
+                                  end=("time", "max"), peak_kt=("wind", "max")).reset_index().sort_values("start"))
+info = C.split_info()
+info["test_storms"] = [dict(sid=r.SID, name=str(r.name).title(), group=r.group, start=str(r.start), end=str(r.end),
+                            peak_kt=None if r.peak_kt != r.peak_kt else float(r.peak_kt)) for r in storms.itertuples()]
+(STAGE / "results" / "split_info.json").write_text(json.dumps(info, indent=1))
+print("split info:", {k: v for k, v in info.items() if k != "test_storms"})
 
 # 4) ERA5 land-sea mask on the model grid (GFS land mask differs slightly) -------
 try:

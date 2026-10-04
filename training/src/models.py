@@ -3,7 +3,7 @@ Model zoo for the track / intensity comparison, with fair tuning.
 
 Every model gets the same features and the same data. Hyper-parameters are
 chosen by 5-fold cross-validation grouped by YEAR inside the training years,
-so the validation years (2005-2006) stay untouched for the reported scores.
+so the validation years (C.VAL) stay untouched for the reported scores.
 Libraries that are not installed are skipped with a message.
 """
 import itertools
@@ -145,7 +145,7 @@ def oof_predictions(make, params, X, y, groups, n_splits=5):
 
 
 # ------------------------------------------------------------------ feature lists
-STORM_META = ["SID", "NAME", "time", "year", "month", "split"]
+STORM_META = ["test_group", "SID", "NAME", "time", "year", "month", "split"]
 
 
 def storm_feature_columns(df):

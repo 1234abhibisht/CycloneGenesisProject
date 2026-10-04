@@ -29,7 +29,7 @@ def load_ibtracs(path=None, years=None):
         # keep final ("main") and recent provisional tracks ("PROVISIONAL", "US-PROVISIONAL"); drop spur tracks
         tt = df["TRACK_TYPE"].astype(str).str.strip().str.lower()
         df = df[(tt == "main") | (tt.str.contains("provisional") & ~tt.str.contains("spur"))]
-    a, b = years or (C.YEARS[0] - 1, max(C.YEARS[1], C.TEST[1]) + 1)
+    a, b = years or (C.YEARS[0] - 1, max(C.YEARS[1], C.TEST[1], *C.RECENT_TEST_YEARS) + 1)
     df = df[df["ISO_TIME"].dt.year.between(a, b)]
     for c in ("LAT", "LON", C.WIND_COL, C.PRES_COL, "USA_WIND"):
         if c in df:
