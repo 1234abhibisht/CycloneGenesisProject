@@ -62,70 +62,6 @@ every 60 min
 * **Why 48 h of GFS?** The features look back 24 h: pressure falls, 24 h rainfall, and "is the vortex growing". Keeping 48 h means a missed or late GFS run never leaves a hole. The GRIB files stay on disk (typically a few hundred MB). SQLite stores only the storm positions, forecasts, occurrence maps and the run log.
 * **Test-storm pages** (Explore → Forecast (Test Storms) and District Strike Rate (Test Storms)) show the real model output for the unseen 2021–23 and 2025 test storms; they open on Cyclone Montha. At every step you can see the forecast next to what actually happened. Use it for demos when no cyclone is active.
 
----
-
-## 1. Put the trained models in place (one time)
-
-1. In Colab, after notebooks 00–06 have run, run `scripts/export_artifacts_colab.py` (see the comment at its top).
-2. Download `MyDrive/CycloneProject/outputs/backend_artifacts.zip`.
-3. Unzip it into `backend/artifacts/`, so that you have `backend/artifacts/models/occurrence_xgb.json`, `backend/artifacts/replay/replay_storm_fixes.csv`, and so on.
-
-The repository already contains the small files: feature lists, threshold, cone radii and the test-result CSVs. The Model Performance page therefore works before the step above. Forecasts need the model files.
-
-## 2. Run on localhost
-
-You need **Python 3.10–3.12** and **Node.js 20+**.
-
-### Backend (terminal 1)
-
-Windows (PowerShell):
-```powershell
-cd backend
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-python app.py
-```
-macOS / Linux:
-```bash
-cd backend
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python app.py
-```
-Open http://127.0.0.1:8000/api/system/status. It should say `"status": "OPERATIONAL"` and list the models it loaded.
-
-About 3 s after start the backend begins downloading the last 48 h of GFS. The first run takes a few minutes, and after that it updates every 60 min. Watch progress in the terminal, or on the **Data & sources** page.
-
-**If the model files fail to load** (look for `errors` in `/api/system/status`), install the library versions used in Colab. `artifacts/versions.txt` lists them. For example:
-```bash
-pip install "xgboost==<version from versions.txt>" "scikit-learn==<version from versions.txt>"
-```
-
-**If `cfgrib` / `eccodes` does not install** (this sometimes happens on Windows), use conda: `conda install -c conda-forge cfgrib eccodes`. The API, replay mode and Model Performance page all work without it; only live GFS reading needs it.
-
-### Frontend (terminal 2)
-```bash
-cd frontend
-npm install
-npm run dev
-```
-Open **http://localhost:3000**. The frontend calls `http://127.0.0.1:8000/api` by default; change this with `frontend/.env` (see `.env.example`).
-
-### Quick demo
-1. Open **Explore → Forecast (Test Storms)** or **District Strike Rate (Test Storms)** (both open on Cyclone Montha) and move the slider through the storm.
-2. **Basin Watch** shows the live 24 h formation probabilities from the latest GFS run.
-3. **Data & sources** shows the GFS files on disk, pipeline runs and stored storm positions. You can also add a storm position by hand there (for example from an IMD bulletin) and press **Run live cycle now**.
-
-### Useful commands
-```bash
-cd backend
-python run_pipeline.py --download-only   # fetch the last 48 h of GFS now
-python run_pipeline.py                   # one full live cycle (download + forecasts)
-python run_pipeline.py --no-download     # recompute from the files already on disk
-python tests/test_backend.py             # offline end-to-end test (synthetic data)
-```
 
 ## 3. API (used by the frontend)
 
@@ -142,13 +78,11 @@ python tests/test_backend.py             # offline end-to-end test (synthetic da
 | `GET/POST /api/mode` | `live` or `replay` |
 | `POST /api/admin/refresh` · `/api/admin/fixes` · `/api/admin/reload-models` | run a cycle, add storm positions, reload models |
 
+
 ## 4. Deploy
 
 ** Deployed to render using our github repo.
 
-## 5. Train again
-
-Open `training/notebooks` in Colab in order 00 → 06. Each notebook says what it needs and what it writes. Then run `scripts/export_artifacts_colab.py` and replace `backend/artifacts/`.
 
 ## Known limitations
 * The models were trained on ERA5 and run on GFS. The fields are converted to the same names, units, levels and grid, but GFS is not identical to ERA5; the skill scores above were measured on ERA5 inputs.
