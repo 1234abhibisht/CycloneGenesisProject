@@ -1,10 +1,10 @@
-import type { MouseEvent } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 import { ArrowRight, CloudSun, Waves, ShieldCheck } from 'lucide-react';
 import '../../pages/public-site.css';
 
 /** The public site's hero banner (cloud image, serif quote, action buttons), used at the top of dashboard pages. */
-export function DashboardHero({ kicker, title, text, actionLabel, targetId }: {
-  kicker: string; title: string; text: string; actionLabel: string; targetId: string;
+export function DashboardHero({ kicker, title, text, actionLabel, targetId, icon }: {
+  kicker: string; title: string; text: string; actionLabel: string; targetId: string; icon?: ReactNode;
 }) {
   const jump = (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -14,7 +14,7 @@ export function DashboardHero({ kicker, title, text, actionLabel, targetId }: {
   return (
     <section className="public-hero public-hero--dashboard">
       <div className="hero-copy">
-        <span className="hero-kicker"><CloudSun size={17} />{kicker}</span>
+        <span className="hero-kicker">{icon ?? <CloudSun size={17} />}{kicker}</span>
         <h1>{title}</h1>
         <p>{text}</p>
         <div className="hero-actions">
