@@ -1,7 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { DashboardLayout } from './components/layout/DashboardLayout';
 import PublicLanding from './pages/PublicLanding';
-import CommandCenter from './pages/CommandCenter';
 import LiveMonitoring from './pages/LiveMonitoring';
 import AIForecast from './pages/AIForecast';
 import WarningsImpact from './pages/WarningsImpact';
@@ -13,7 +12,6 @@ import { useAlerts } from './features/alerts/AlertContext';
 
 // Pages of the workspace (same set under "/" and "/dashboard")
 const pages = [
-  ['command', <CommandCenter />],
   ['live', <LiveMonitoring />],
   ['basin', <BasinWatch />],
   ['forecast', <AIForecast />],
@@ -26,10 +24,10 @@ const pages = [
 
 // Old links that still arrive from bookmarks / slides
 const aliases: [string, string][] = [
-  ['overview', 'command'], ['track', 'forecast'], ['intensity', 'forecast'], ['environment', 'live'],
+  ['overview', 'live'], ['command', 'live'], ['track', 'forecast'], ['intensity', 'forecast'], ['environment', 'live'],
   ['environmental', 'live'], ['risk', 'warnings'], ['history', 'historical'], ['replay', 'historical'],
   ['performance', 'models'], ['data-sources', 'system'], ['data', 'system'], ['architecture', 'system'],
-  ['satellite', 'live'], ['response', 'warnings'], ['sdg', 'command'],
+  ['satellite', 'live'], ['response', 'warnings'], ['sdg', 'live'],
 ];
 
 function AppContent() {
@@ -51,7 +49,7 @@ function AppContent() {
 
         {['/', '/dashboard'].map((base) => (
           <Route key={base} path={base} element={<DashboardLayout />}>
-            {base === '/dashboard' && <Route index element={<CommandCenter />} />}
+            {base === '/dashboard' && <Route index element={<Navigate to="/dashboard/live" replace />} />}
             {pages.map(([path, element]) => (
               <Route key={path} path={path} element={element} />
             ))}

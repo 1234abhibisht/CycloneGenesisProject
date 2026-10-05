@@ -5,7 +5,6 @@ import '../../pages/public-site.css';
 
 // Same pages as the former sidebar, shown as a header (same style as the public site header).
 const mainLinks: [string, string][] = [
-  ['command', 'Overview'],
   ['live', 'Live monitoring'],
   ['basin', 'Basin watch'],
   ['forecast', 'Forecast (6-24 h)'],
@@ -21,7 +20,7 @@ const exploreLinks: [string, string][] = [
 export function DashboardNavigation() {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
-  const current = pathname.split('/').filter(Boolean).pop() || 'command';
+  const current = pathname.split('/').filter(Boolean).pop() || 'live';
   const exploreActive = exploreLinks.some(([path]) => path === current);
   const close = (e?: MouseEvent<HTMLElement>) => {
     setOpen(false);
@@ -39,7 +38,7 @@ export function DashboardNavigation() {
       <nav aria-label="Main navigation" className={open ? 'public-menu is-open' : 'public-menu'}>
         {mainLinks.map(([path, title]) => (
           <NavLink key={path} to={`/dashboard/${path}`} onClick={() => setOpen(false)}
-            className={({ isActive }) => (isActive || (path === 'command' && pathname === '/dashboard') ? 'active' : '')}>
+            className={({ isActive }) => (isActive ? 'active' : '')}>
             {title}
           </NavLink>
         ))}

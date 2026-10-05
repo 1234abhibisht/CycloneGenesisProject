@@ -40,3 +40,5 @@
 @media(max-width:1200px){.basin-heading.with-cloud{min-height:400px}}
 @media(max-width:900px){.basin-heading.with-cloud{min-height:0;padding:40px 30px}}
 @media(max-width:600px){.basin-heading.with-cloud{padding:26px 20px}}
+
+.source-note-action{display:inline-flex;align-items:center;gap:7px;margin-top:12px;padding:9px 15px;border-radius:5px;background:#1b617d;color:#fff!important;font-size:12px;font-weight:500;box-shadow:0 3px 9px #18537016}.source-note-action:hover{background:#164f66}

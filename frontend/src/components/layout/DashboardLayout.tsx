@@ -5,7 +5,6 @@ import { DashboardNavigation } from './DashboardNavigation';
 import { TopBar } from './TopBar';
 
 const pageTitles: Record<string, string> = {
-  command: 'Overview',
   live: 'Live Monitoring',
   basin: 'Basin Watch · 24 h formation chance',
   forecast: 'Track & Intensity Forecast (6-24 h)',
@@ -30,8 +29,8 @@ export const DashboardLayout: React.FC = () => {
   })), []);
   const location = useLocation();
   
-  const page = location.pathname.split('/').filter(Boolean).pop() || 'command';
-  const title = pageTitles[page] || 'Overview';
+  const page = location.pathname.split('/').filter(Boolean).pop() || 'live';
+  const title = pageTitles[page] || 'Live Monitoring';
 
   return (
     <div className="google-workspace observatory-shell flex flex-col h-dvh overflow-hidden antialiased">

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Clock, ShieldCheck, Zap, TrendingUp } from 'lucide-react';
 import { Polyline } from 'react-leaflet';
+import { Link } from 'react-router-dom';
 import { useCyclone } from '../hooks/useCyclone';
 import { usePredictions } from '../hooks/usePredictions';
 import { CycloneMap } from '../components/maps/CycloneMap';
@@ -45,9 +46,12 @@ export const AIForecast: React.FC = () => {
           {standby?.message || 'Track and intensity forecasts appear here when a storm is active in the North Indian Ocean.'}
         </p>
         <p className="text-sm text-[#4A6670] mt-3">
-          Open <strong>Forecast (Test Storms)</strong> to see the real model output for the unseen 2021-23 and 2025 test storms, or open Basin Watch
+          Open <Link to="/dashboard/historical" className="font-semibold text-[#1b617d] underline underline-offset-2">Forecast (Test Storms)</Link> to see the real model output for the unseen 2021-23 and 2025 test storms, or open <Link to="/dashboard/basin" className="font-semibold text-[#1b617d] underline underline-offset-2">Basin Watch</Link>
           for the 24 h formation probabilities.
         </p>
+        <Link to="/dashboard/historical" className="inline-flex items-center gap-2 mt-4 px-4 py-2.5 rounded-md bg-[#1b617d] text-white text-sm font-medium hover:bg-[#164f66]">
+          Open Forecast (Test Storms) <span aria-hidden="true">→</span>
+        </Link>
       </div>
     );
   }
