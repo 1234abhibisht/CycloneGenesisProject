@@ -1,14 +1,26 @@
-# Cyclone Early-Warning System — North Indian Ocean
+# Sagar Drishti — Cyclone Early-Warning System for the North Indian Ocean
 **SIH26070 · Team VectorMinds**
 
-Machine-learning cyclone guidance for the Bay of Bengal and Arabian Sea. It is trained on ERA5 (1990–2008) and IBTrACS, and runs live on NOAA GFS.
+Machine-learning cyclone guidance for the Bay of Bengal and Arabian Sea. It is trained on ERA5 (1990–2023) and IBTrACS, and runs live on NOAA GFS.
 
-| Part | What it predicts | Model | Unseen test storms 2007-08 |
+**Data split (by year, so no storm appears in two sets):**
+
+| Set | Years | Used for |
+|---|---|---|
+| Train | 1990–2016 | fitting the models |
+| Validation | 2017–2018 | tuning, and the uncertainty-cone radii |
+| Calibration | 2019–2020 | probability calibration and the occurrence threshold |
+| **Test** | **2021–2023** (34 storms) | final scores below — never seen in training or tuning |
+| Recent test | Oct–Dec 2025 (Montha, Ditwah, Shakhti, Senyar + 2 depressions) | extra check on the newest storms |
+
+| Part | What it predicts | Model | Unseen test storms 2021–23 |
 |---|---|---|---|
-| **Occurrence** | Chance of a cyclone (D-DD / CS / SCS+) within **200 km in the next 24 h**, on every 0.5° sea cell | XGBoost + calibration | Brier skill **+19 %** vs persistence; catches **96 %** of events with 0.09 false-alarm zones per forecast |
-| **Track** | Storm centre at **+6 / +12 / +18 / +24 h** | XGBoost | 24 h error **126 km** (CLIPER 164 km, **−23 %**) |
-| **Intensity** | Max wind at +6 … +24 h, rapid intensification, lifetime peak | XGBoost | 24 h error **8.4 kt** (SHIFOR 10.9 kt, **−23 %**); RI ROC-AUC 0.80 |
-| **District strike** | Chance that the storm centre passes within 100 km of each coastal district (0–24 h). Shown as red ≥50 %, orange ≥25 %, yellow ≥10 %, green below 10 % | Monte Carlo on the model's own past errors | Brier skill **+61 %** vs climatology |
+| **Occurrence** | Chance of a cyclone (D-DD / CS / SCS+) within **200 km in the next 24 h**, on every 0.5° sea cell | XGBoost + calibration | Brier skill **+19 %** vs persistence; catches **94 %** of events with 0.10 false-alarm zones per forecast |
+| **Track** | Storm centre at **+6 / +12 / +18 / +24 h** | XGBoost | Mean error **32 / 59 / 86 / 113 km** at +6/12/18/24 h (CLIPER 143 km at 24 h, **−21 %**). Uncertainty cone (67th percentile of validation errors): 33 / 64 / 98 / 126 km |
+| **Intensity** | Max wind at +6 … +24 h, rapid intensification, lifetime peak | XGBoost | Mean error **2.7 / 4.1 / 5.3 / 6.5 kt** at +6/12/18/24 h (SHIFOR 9.5 kt at 24 h, **−32 %**); RI ROC-AUC **0.905**; lifetime peak 9.1 kt (31 % better than baseline) |
+| **District strike** | Chance that the storm centre passes within 100 km of each coastal district (0–24 h). Shown as red ≥50 %, orange ≥25 %, yellow ≥10 %, green below 10 % | Monte Carlo (1,000 tracks) on the model's own past errors | Brier skill **+82 % (0–6 h) to +63 % (0–24 h)** vs climatology; orange-tier F1 **0.74** |
+
+On the recent Oct–Dec 2025 storms: 24 h track error 136 km (CLIPER 161 km), 24 h wind error 4.1 kt (SHIFOR 5.9 kt), strike Brier skill 54–66 %. Case study: for Cyclone Montha (Oct 2025) the model marked Krishna and West Godavari red, and the storm crossed the coast between them.
 
 This system gives no pressure forecast and has no storm-surge model. It is model guidance for research, **not an official warning**; always follow IMD / RSMC New Delhi.
 
@@ -48,7 +60,7 @@ every 60 min
 ```
 
 * **Why 48 h of GFS?** The features look back 24 h: pressure falls, 24 h rainfall, and "is the vortex growing". Keeping 48 h means a missed or late GFS run never leaves a hole. The GRIB files stay on disk (typically a few hundred MB). SQLite stores only the storm positions, forecasts, occurrence maps and the run log.
-* **Replay mode** (switch in the top bar) shows the real model output for the unseen 2007-08 test storms, such as Sidr and Nargis. At every step you can see the forecast next to what actually happened. Use it for demos when no cyclone is active.
+* **Test-storm pages** (Explore → Forecast (Test Storms) and District Strike Rate (Test Storms)) show the real model output for the unseen 2021–23 and 2025 test storms; they open on Cyclone Montha. At every step you can see the forecast next to what actually happened. Use it for demos when no cyclone is active.
 
 ---
 
@@ -102,7 +114,7 @@ npm run dev
 Open **http://localhost:3000**. The frontend calls `http://127.0.0.1:8000/api` by default; change this with `frontend/.env` (see `.env.example`).
 
 ### Quick demo
-1. Top bar → **Replay**, then open **Forecast** or **Test-storm replay**, and move the slider through the storm.
+1. Open **Explore → Forecast (Test Storms)** or **District Strike Rate (Test Storms)** (both open on Cyclone Montha) and move the slider through the storm.
 2. **Basin Watch** shows the live 24 h formation probabilities from the latest GFS run.
 3. **Data & sources** shows the GFS files on disk, pipeline runs and stored storm positions. You can also add a storm position by hand there (for example from an IMD bulletin) and press **Run live cycle now**.
 
@@ -125,7 +137,7 @@ python tests/test_backend.py             # offline end-to-end test (synthetic da
 | `GET /api/cyclone/<id>/risk` | strike probability for every coastal district, plus warning tier and closest approach |
 | `GET /api/basin/risk` · `/api/occurrence/grid` | occurrence probabilities per zone and per 0.5° cell |
 | `GET /api/historical/catalog` · `/api/historical/<id>/replay?step=n` | test-storm replay |
-| `GET /api/models/performance` | verified 2007-08 test scores |
+| `GET /api/models/performance` | verified 2021–23 test scores |
 | `GET /api/sql/records` | latest storm positions in SQLite |
 | `GET/POST /api/mode` | `live` or `replay` |
 | `POST /api/admin/refresh` · `/api/admin/fixes` · `/api/admin/reload-models` | run a cycle, add storm positions, reload models |
