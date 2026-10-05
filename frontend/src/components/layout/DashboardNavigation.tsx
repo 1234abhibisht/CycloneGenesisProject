@@ -1,6 +1,6 @@
 import { useState, type MouseEvent } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Compass, Menu, X, ArrowUpRight } from 'lucide-react';
+import { Menu, X, ArrowUpRight } from 'lucide-react';
 import '../../pages/public-site.css';
 
 // Same pages as the former sidebar, shown as a header (same style as the public site header).
@@ -29,8 +29,7 @@ export function DashboardNavigation() {
   return (
     <header className="public-navigation">
       <NavLink to="/" end className="public-brand" onClick={() => setOpen(false)}>
-        <Compass size={32} strokeWidth={1.5} />
-        <span>Cyclone<span className="brand-light"> AI</span><small>UNDERSTAND. PREPARE. STAY INFORMED.</small></span>
+        <img src="/sagar-drishti-logo.png" alt="Sagar Drishti" className="brand-logo" />
       </NavLink>
       <button className="public-menu-toggle" aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open} onClick={() => setOpen(!open)}>
         {open ? <X /> : <Menu />}
