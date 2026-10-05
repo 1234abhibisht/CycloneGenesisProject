@@ -45,12 +45,13 @@ function AppContent() {
       </div>
 
       <Routes>
+        <Route path="/" element={<PublicLanding />} />
         <Route path="/landing" element={<PublicLanding />} />
         <Route path="/public" element={<PublicLanding />} />
 
         {['/', '/dashboard'].map((base) => (
           <Route key={base} path={base} element={<DashboardLayout />}>
-            <Route index element={<CommandCenter />} />
+            {base === '/dashboard' && <Route index element={<CommandCenter />} />}
             {pages.map(([path, element]) => (
               <Route key={path} path={path} element={element} />
             ))}

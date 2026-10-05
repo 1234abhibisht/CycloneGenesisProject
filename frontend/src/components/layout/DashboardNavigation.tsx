@@ -29,7 +29,7 @@ export function DashboardNavigation() {
   };
   return (
     <header className="public-navigation">
-      <NavLink to="/dashboard/command" className="public-brand" onClick={() => setOpen(false)}>
+      <NavLink to="/" end className="public-brand" onClick={() => setOpen(false)}>
         <Compass size={32} strokeWidth={1.5} />
         <span>Cyclone<span className="brand-light"> AI</span><small>UNDERSTAND. PREPARE. STAY INFORMED.</small></span>
       </NavLink>
@@ -39,7 +39,7 @@ export function DashboardNavigation() {
       <nav aria-label="Main navigation" className={open ? 'public-menu is-open' : 'public-menu'}>
         {mainLinks.map(([path, title]) => (
           <NavLink key={path} to={`/dashboard/${path}`} onClick={() => setOpen(false)}
-            className={({ isActive }) => (isActive || (path === 'command' && ['/', '/dashboard'].includes(pathname)) ? 'active' : '')}>
+            className={({ isActive }) => (isActive || (path === 'command' && pathname === '/dashboard') ? 'active' : '')}>
             {title}
           </NavLink>
         ))}
