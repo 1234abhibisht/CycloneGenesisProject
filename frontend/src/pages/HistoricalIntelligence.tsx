@@ -40,8 +40,11 @@ export const HistoricalIntelligence: React.FC = () => {
       setCatalog(storms);
       setLoaded(true);
       if (storms.length) {
-        setStormId(storms[0].id);
-        setStep(Math.floor(storms[0].totalSteps / 2));
+        const montha = storms.find((s) => s.name.toLowerCase() === 'montha');
+        const first = montha ?? storms[0];
+        setStormId(first.id);
+        // Montha opens at 27 Oct 2025, 18:00 UTC (step 23), the same issue time as District Strike Rate (Test Storms)
+        setStep(montha ? Math.min(22, first.totalSteps - 1) : Math.floor(first.totalSteps / 2));
       }
     });
   }, []);
