@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# Live data written by the backend (GFS files, SQLite) - recreated automatically
+backend/data/
+backend/.env
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# OS / editors
+.DS_Store
+.vscode/
+.idea/

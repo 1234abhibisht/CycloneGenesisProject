@@ -1,0 +1,6 @@
+district,state,p_6h,p_12h,p_18h,p_24h,p,lat,lon,6 h,12 h,18 h,24 h,colour (24 h)
+South 24 Parganas,West Bengal,0.0,0.0,0.0,0.046,0.046,21.65,88.4,<5%,<5%,<5%,5%,green
+Purba Medinipur,West Bengal,0.0,0.0,0.0,0.013,0.013,21.63,87.55,<5%,<5%,<5%,<5%,green
+Kendrapara,Odisha,0.0,0.0,0.005,0.009,0.009,20.5,86.9,<5%,<5%,<5%,<5%,green
+Jagatsinghpur,Odisha,0.0,0.0,0.003,0.003,0.003,20.26,86.67,<5%,<5%,<5%,<5%,green
+Bhadrak,Odisha,0.0,0.0,0.0,0.003,0.003,21.0,86.95,<5%,<5%,<5%,<5%,green

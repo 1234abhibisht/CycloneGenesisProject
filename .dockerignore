@@ -1,0 +1,9 @@
+**/.venv
+**/node_modules
+**/__pycache__
+frontend/dist
+backend/.env
+frontend/.env
+training
+.git
+frontend_redesign
